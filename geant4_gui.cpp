@@ -1,5 +1,6 @@
 class MyMainFrame : public TGMainFrame {
 private:
+    TGTextButton *check_geant4_button; // Button for cmake
     TGTextButton *cmakeButton; // Button for cmake
     TGTextButton *makeButton; // Button for make
     TGTextButton *runSimButton; // Button for running simulation
@@ -14,6 +15,7 @@ private:
 public:
     MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h);
     virtual ~MyMainFrame();
+    void geant4_button_clicked(); // Action for "Click Me" button
     void cmakeButton_clicked(); // Action for "Click Me" button
     void makeButton_clicked(); // Action for "Click Me" button
     void runSimButton_clicked(); // Action for "Click Me" button
@@ -21,16 +23,21 @@ public:
     void loadInstrxnButton_clicked();
     void loadLogButton_clicked();
     void LoadFile(const char *filename);  // Function to load file into TGTextView
+    void updateOutField();  // Function to update TGTextView in real time
     virtual void CloseWindow();  // Properly handle window close
 };
 
 MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h) : TGMainFrame(p, w, h) 
 {
     //Create label display
-    labelDisplay = new TGLabel(this, "Welcome to CERN-ROOT based Geant4 GUI by V. Ranga (2025)");
-    AddFrame(labelDisplay,new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 5));
+   // labelDisplay = new TGLabel(this, "Welcome to CERN-ROOT based Geant4 GUI by V. Ranga (2025)");
+    //AddFrame(labelDisplay,new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 5));
     
-   
+    // Create cmake button
+    check_geant4_button = new TGTextButton(this, "Check Geant4");
+    check_geant4_button->Connect("Clicked()", "MyMainFrame", this, "geant4_button_clicked()"); // Connect to click handler
+    AddFrame( check_geant4_button, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 5));
+    
     // Create cmake button
     cmakeButton = new TGTextButton(this, "Run CMAKE");
     cmakeButton->Connect("Clicked()", "MyMainFrame", this, "cmakeButton_clicked()"); // Connect to click handler
@@ -63,7 +70,7 @@ MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h) : TGMainFrame(p,
     AddFrame(exitButton, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 5));
    
     // Create text output field
-    textOutput = new TGTextView(this, 200, 100); // 200x100 pixels size
+    textOutput = new TGTextView(this, 400, 200); // 200x100 pixels size
     AddFrame(textOutput, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 10, 10, 10, 10));
     
 
@@ -104,6 +111,13 @@ MyMainFrame::~MyMainFrame() {
     Cleanup();
 }
 
+// Function to update TGTextView in real time
+void MyMainFrame::updateOutField()
+{
+    textOutput->Update();  // Force immediate UI refresh
+    gSystem->ProcessEvents(); // Process pending UI events
+}
+
 
 // Function to load a file into TGTextView
 void MyMainFrame::LoadFile(const char *filename)
@@ -132,26 +146,41 @@ void MyMainFrame:: loadLogButton_clicked()
     LoadFile("log.txt");
 }
 
-void MyMainFrame::cmakeButton_clicked()
+void MyMainFrame::geant4_button_clicked()
 {   
    
-    textOutput->AddLine("Running CMAKE...");
-    textOutput->Update();  // Force immediate UI refresh
-    gSystem->ProcessEvents(); // Process pending UI events
+    textOutput->AddLine("Finding Geant4..."); updateOutField();
     
-    int cmakeStatus = gSystem->Exec("cd geant4/build && rm -r *  && cmake ../source > ../../log.txt 2>&1");// > to rewrite log file
-    if(cmakeStatus != 0)
+    int geant4_status = gSystem->Exec("geant4-config --version  > log.txt 2>&1");
+    
+    if(geant4_status != 0)
      {
-        textOutput->AddLine("Error: CMAKE failed. Check log.txt");
-        textOutput->Update();  // Force immediate UI refresh
-        gSystem->ProcessEvents(); // Process pending UI events
+        textOutput->AddLine("Cannot find Geant4. Please source geant4.sh"); updateOutField();
         return;
      }
      else 
      {
-        textOutput->AddLine("CMAKE completed successfully. Click on Run MAKE to proceed.");
-        textOutput->Update();  // Force immediate UI refresh
-        gSystem->ProcessEvents(); // Process pending UI events    
+        TString geant4_version = gSystem->GetFromPipe("geant4-config --version");
+        TString print_geant4_version_command = "Found Geant4 version " + geant4_version + " Click on Run CMAKE to proceed.";
+        textOutput->AddLine(print_geant4_version_command); updateOutField();
+     }    
+}
+
+
+void MyMainFrame::cmakeButton_clicked()
+{   
+   
+    textOutput->AddLine("Running CMAKE..."); updateOutField();
+    
+    int cmakeStatus = gSystem->Exec("cd geant4/build && rm -r *  && cmake ../source >> ../../log.txt 2>&1");// > to rewrite log file
+    if(cmakeStatus != 0)
+     {
+        textOutput->AddLine("Error: CMAKE failed. Check log.txt"); updateOutField();
+        return;
+     }
+     else 
+     {
+        textOutput->AddLine("CMAKE completed successfully. Click on Run MAKE to proceed."); updateOutField();
      }    
 }
 //2>&1 is a shell redirection operator. It redirects stderr (error output, file descriptor 2) to
@@ -159,37 +188,26 @@ void MyMainFrame::cmakeButton_clicked()
         
 void MyMainFrame::makeButton_clicked()
 {
-    textOutput->AddLine("Running MAKE using 4 cores...");
-    textOutput->Update();  // Force immediate UI refresh
-    gSystem->ProcessEvents(); // Process pending UI events
+    textOutput->AddLine("Running MAKE using 4 cores..."); updateOutField();
     
     int makeStatus = gSystem->Exec("cd geant4/build && make -j4 >> ../../log.txt 2>&1");// >> append to log file
     if(makeStatus != 0)
      {
-        textOutput->AddLine("Error: MAKE failed. Check log.txt");
-        textOutput->Update();  // Force immediate UI refresh
-        gSystem->ProcessEvents(); // Process pending UI events
+        textOutput->AddLine("Error: MAKE failed. Check log.txt"); updateOutField();
         return;
      }
      else 
      {
-        textOutput->AddLine("MAKE completed successfully. Click on Run Simulation to proceed.");
-        textOutput->Update();  // Force immediate UI refresh
-        gSystem->ProcessEvents(); // Process pending UI events    
+        textOutput->AddLine("MAKE completed successfully. Click on Run Simulation to proceed."); updateOutField();
      }
 }
 
 void MyMainFrame::runSimButton_clicked() {
-    textOutput->AddLine("Started...");
-    textOutput->Update();  // Force immediate UI refresh
-    gSystem->ProcessEvents(); // Process pending UI events
+    textOutput->AddLine("Started..."); updateOutField();
     
    // std::thread([this]() {
  
-        textOutput->AddLine("Grabbing executable file name...");
-        textOutput->Update();  // Force immediate UI refresh
-        gSystem->ProcessEvents(); // Process pending UI events
-        
+        textOutput->AddLine("Grabbing executable file name..."); updateOutField();
         // Execute the shell command and store output
         TString exec_name = gSystem->GetFromPipe("grep 'Built target' log.txt | awk '{print $4}'");
 
@@ -197,13 +215,9 @@ void MyMainFrame::runSimButton_clicked() {
         // Construct a shell command using the extracted executable name
         TString print_exe_name_command = "Ecexutable file name is: " + exec_name;
 
-        textOutput->AddLine(print_exe_name_command);
-        textOutput->Update();  // Force immediate UI refresh
-        gSystem->ProcessEvents(); // Process pending UI events
+        textOutput->AddLine(print_exe_name_command); updateOutField();
         
-        textOutput->AddLine("Running simulation...");
-        textOutput->Update();  // Force immediate UI refresh
-        gSystem->ProcessEvents(); // Process pending UI events
+        textOutput->AddLine("Running simulation..."); updateOutField();
         
         // Construct a shell command using the extracted executable name
         TString exe_command = "cd geant4/build && ./" + exec_name + " >> ../../log.txt 2>&1";
@@ -216,16 +230,11 @@ void MyMainFrame::runSimButton_clicked() {
 
         //int simStatus = gSystem->Exec("cd geant4/build && ./sim >> ../../log.txt 2>&1");
         if (simStatus != 0) {
-            textOutput->AddLine("Error: Simulation failed. Check log.txt");
-            
-            textOutput->Update();  // Force immediate UI refresh
-            gSystem->ProcessEvents(); // Process pending UI events
+            textOutput->AddLine("Error: Simulation failed. Check log.txt"); updateOutField();
             return;
         }
 
-        textOutput->AddLine("Run successful");
-        textOutput->Update();  // Force immediate UI refresh
-        gSystem->ProcessEvents(); // Process pending UI events
+        textOutput->AddLine("Run successful"); updateOutField();
     //}).detach();  // Detach to avoid blocking UI
 }
 
@@ -244,7 +253,7 @@ void MyMainFrame::CloseWindow() {
 
 int geant4_gui() {
     TApplication app("ROOT Application", 0, nullptr);
-    MyMainFrame *mainFrame = new MyMainFrame(gClient->GetRoot(), 300, 300); // Adjusted size for text output
+    MyMainFrame *mainFrame = new MyMainFrame(gClient->GetRoot(), 600, 600); // Adjusted size for text output
     app.Run();
 
     // Delete main frame after application ends

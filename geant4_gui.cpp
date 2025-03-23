@@ -8,6 +8,8 @@ private:
     TGTextButton *loadInstrxnButton;  // Button for exiting the application
     TGTextView   *textOutput;    // Text output field
     TGLabel      *labelDisplay;  // Label to display text
+    TGHorizontalFrame *buttonFrame1;
+    TGHorizontalFrame *buttonFrame2;
     
 public:
     MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h);
@@ -28,12 +30,11 @@ MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h) : TGMainFrame(p,
     labelDisplay = new TGLabel(this, "Welcome to CERN-ROOT based Geant4 GUI by V. Ranga (2025)");
     AddFrame(labelDisplay,new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 5));
     
+   
     // Create cmake button
     cmakeButton = new TGTextButton(this, "Run CMAKE");
     cmakeButton->Connect("Clicked()", "MyMainFrame", this, "cmakeButton_clicked()"); // Connect to click handler
-    //AddFrame(cmakeButton, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 5));
-    AddFrame(cmakeButton);
-    cmakeButton->MoveResize(50, 200, 20, 30);  // (X, Y, Width, Height)
+    AddFrame(cmakeButton, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 5));
     
     // Create make button
     makeButton = new TGTextButton(this, "Run MAKE");
@@ -44,6 +45,7 @@ MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h) : TGMainFrame(p,
     runSimButton = new TGTextButton(this, "Run Simulation");
     runSimButton->Connect("Clicked()", "MyMainFrame", this, "runSimButton_clicked()"); // Connect to click handler
     AddFrame(runSimButton, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 5));
+    
     
     // Create "Load Instructions" button
     loadInstrxnButton = new TGTextButton(this, "Load Instructions");
@@ -68,7 +70,8 @@ MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h) : TGMainFrame(p,
     // Set up the main frame
     SetWindowName("CERN-ROOT based GUI for Geant4 by V. Ranga (2025)");
     MapSubwindows();
-    Resize(w, h);
+    //Resize(w, h);
+    Resize(GetDefaultSize());  // Automatically fit all widgets
     MapWindow();
 }
 
@@ -182,14 +185,39 @@ void MyMainFrame::runSimButton_clicked() {
     gSystem->ProcessEvents(); // Process pending UI events
     
    // std::thread([this]() {
-         
+ 
+        textOutput->AddLine("Grabbing executable file name...");
+        textOutput->Update();  // Force immediate UI refresh
+        gSystem->ProcessEvents(); // Process pending UI events
+        
+        // Execute the shell command and store output
+        TString exec_name = gSystem->GetFromPipe("grep 'Built target' log.txt | awk '{print $4}'");
+
+        // Print the extracted executable name
+        // Construct a shell command using the extracted executable name
+        TString print_exe_name_command = "Ecexutable file name is: " + exec_name;
+
+        textOutput->AddLine(print_exe_name_command);
+        textOutput->Update();  // Force immediate UI refresh
+        gSystem->ProcessEvents(); // Process pending UI events
+        
         textOutput->AddLine("Running simulation...");
         textOutput->Update();  // Force immediate UI refresh
         gSystem->ProcessEvents(); // Process pending UI events
-           
-        int simStatus = gSystem->Exec("cd geant4/build && ./sim >> ../../log.txt 2>&1");
+        
+        // Construct a shell command using the extracted executable name
+        TString exe_command = "cd geant4/build && ./" + exec_name + " >> ../../log.txt 2>&1";
+
+        // Execute the command
+        int simStatus = gSystem->Exec(exe_command);
+
+        // Check execution result
+        cout << "Execution returned: " << simStatus << endl;
+
+        //int simStatus = gSystem->Exec("cd geant4/build && ./sim >> ../../log.txt 2>&1");
         if (simStatus != 0) {
             textOutput->AddLine("Error: Simulation failed. Check log.txt");
+            
             textOutput->Update();  // Force immediate UI refresh
             gSystem->ProcessEvents(); // Process pending UI events
             return;

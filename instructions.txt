@@ -1,5 +1,7 @@
 Source geant4.sh file from /geant4installDirectory/bin folder before running the application.
 To run the application, type "root geant4_gui.cpp" in the terminal.
 Click on Run CMAKE button to generate build files.
-After successful CMAKE, click on Run MAKE button to complile and genarate executable.
-If there are any errors at any step, a message will be diplayed and you should load LOG file.
+After successful CMAKE, click on Run MAKE button to complile and genarate the executable.
+The application will automatically grab the name of the executable and display it.
+Click on the Run Simulation to run the executable.
+If there are any errors at any step, a message will be diplayed and you can load LOG file for futher information.

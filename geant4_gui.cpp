@@ -9,9 +9,11 @@ private:
     TGTextButton *loadInstrxnButton;  // Button for exiting the application
     TGTextView   *textOutput;    // Text output field
     TGLabel      *labelDisplay;  // Label to display text
-    TGHorizontalFrame *buttonFrame1;
-    TGHorizontalFrame *buttonFrame2;
-    
+    TGGroupFrame *grid_frame_1;
+    TGGroupFrame *grid_frame_2;
+    TGHorizontal3DLine *h_line_1;
+    TGHorizontal3DLine *h_line_2;
+
 public:
     MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h);
     virtual ~MyMainFrame();
@@ -33,36 +35,59 @@ MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h) : TGMainFrame(p,
    // labelDisplay = new TGLabel(this, "Welcome to CERN-ROOT based Geant4 GUI by V. Ranga (2025)");
     //AddFrame(labelDisplay,new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 5));
     
-    // Create cmake button
-    check_geant4_button = new TGTextButton(this, "Check Geant4");
-    check_geant4_button->Connect("Clicked()", "MyMainFrame", this, "geant4_button_clicked()"); // Connect to click handler
-    AddFrame( check_geant4_button, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 5));
-    
-    // Create cmake button
-    cmakeButton = new TGTextButton(this, "Run CMAKE");
-    cmakeButton->Connect("Clicked()", "MyMainFrame", this, "cmakeButton_clicked()"); // Connect to click handler
-    AddFrame(cmakeButton, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 5));
-    
-    // Create make button
-    makeButton = new TGTextButton(this, "Run MAKE");
-    makeButton->Connect("Clicked()", "MyMainFrame", this, "makeButton_clicked()"); // Connect to click handler
-    AddFrame(makeButton, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 5));
+    // Add a horizontal line
+    //h_line_1 = new TGHorizontal3DLine(this, 400);
+    //AddFrame(h_line_1, new TGLayoutHints(kLHintsExpandX | kLHintsCenterX, 10, 10, 5, 5));
+    // kLHintsCenterX: Aligns the widget horizontally to the center of its parent frame.
+    //5, 5, 5, 5: Margins around the button in the order—left, right, top, bottom (in pixels).
 
-    // Create run simulation button
-    runSimButton = new TGTextButton(this, "Run Simulation");
-    runSimButton->Connect("Clicked()", "MyMainFrame", this, "runSimButton_clicked()"); // Connect to click handler
-    AddFrame(runSimButton, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 5));
+    // Layout 3: Grid-like arrangement of buttons
+    grid_frame_1 = new TGGroupFrame(this, "Useful Checks", kHorizontalFrame);
+    //'this' Refers to the parent frame or window that the composite frame belongs to. 
+    //It likely represents the current instance of the main frame or another GUI container.
+    //70, 10: These are the width and height of the composite frame, in pixels.
+    //kHorizontalFrame: A flag indicating how the frame organizes its child components. In this case, it arranges them horizontally.
+
+    // Create "Check Geant4" button
+    check_geant4_button = new TGTextButton(grid_frame_1, "Check Geant4");
+    check_geant4_button->Connect("Clicked()", "MyMainFrame", this, "geant4_button_clicked()"); // Connect to click handler
     
-    
-    // Create "Load Instructions" button
-    loadInstrxnButton = new TGTextButton(this, "Load Instructions");
+     // Create "Load Instructions" button
+    loadInstrxnButton = new TGTextButton(grid_frame_1, "Load Instructions");
     loadInstrxnButton->Connect("Clicked()", "MyMainFrame", this, "loadInstrxnButton_clicked()"); // Connect to exit handler
-    AddFrame(loadInstrxnButton, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 5));
     
     // Create "Load LOG file" button
-    loadLogButton = new TGTextButton(this, "Load LOG file");
+    loadLogButton = new TGTextButton(grid_frame_1, "Load LOG file");
     loadLogButton->Connect("Clicked()", "MyMainFrame", this, "loadLogButton_clicked()"); // Connect to exit handler
-    AddFrame(loadLogButton, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 5));
+ 
+    grid_frame_1->AddFrame(check_geant4_button, new TGLayoutHints(kLHintsCenterX));
+    grid_frame_1->AddFrame(loadInstrxnButton, new TGLayoutHints(kLHintsCenterX));
+    grid_frame_1->AddFrame(loadLogButton, new TGLayoutHints(kLHintsCenterX));
+    AddFrame(grid_frame_1, new TGLayoutHints(kLHintsExpandX));
+
+    // Add a horizontal line
+    //h_line_2 = new TGHorizontal3DLine(this, 400);
+    //AddFrame(h_line_2, new TGLayoutHints(kLHintsExpandX | kLHintsCenterX, 10, 10, 5, 5));
+    
+
+    grid_frame_2 = new TGGroupFrame(this, "Primary functions", kHorizontalFrame);
+
+    // Create cmake button
+    cmakeButton = new TGTextButton(grid_frame_2, "Run CMAKE");
+    cmakeButton->Connect("Clicked()", "MyMainFrame", this, "cmakeButton_clicked()"); // Connect to click handler
+    
+    // Create make button
+    makeButton = new TGTextButton(grid_frame_2, "Run MAKE");
+    makeButton->Connect("Clicked()", "MyMainFrame", this, "makeButton_clicked()"); // Connect to click handler
+ 
+    // Create run simulation button
+    runSimButton = new TGTextButton(grid_frame_2, "Run Simulation");
+    runSimButton->Connect("Clicked()", "MyMainFrame", this, "runSimButton_clicked()"); // Connect to click handler
+    
+    grid_frame_2->AddFrame(cmakeButton, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 5));
+    grid_frame_2->AddFrame(makeButton, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 5));
+    grid_frame_2->AddFrame(runSimButton, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 5));
+    AddFrame(grid_frame_2, new TGLayoutHints(kLHintsExpandX));
 
     // Create "Exit" button
     exitButton = new TGTextButton(this, "Exit");
@@ -71,13 +96,12 @@ MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h) : TGMainFrame(p,
    
     // Create text output field
     textOutput = new TGTextView(this, 400, 200); // 200x100 pixels size
-    AddFrame(textOutput, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 10, 10, 10, 10));
+    AddFrame(textOutput, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 10, 10, 0, 10));
     
 
     // Set up the main frame
     SetWindowName("CERN-ROOT based GUI for Geant4 by V. Ranga (2025)");
     MapSubwindows();
-    //Resize(w, h);
     Resize(GetDefaultSize());  // Automatically fit all widgets
     MapWindow();
 }
@@ -253,7 +277,9 @@ void MyMainFrame::CloseWindow() {
 
 int geant4_gui() {
     TApplication app("ROOT Application", 0, nullptr);
-    MyMainFrame *mainFrame = new MyMainFrame(gClient->GetRoot(), 600, 600); // Adjusted size for text output
+    //0: Represents the argc parameter (argument count). Since no command-line arguments are being passed, this value is set to 0.
+    //nullptr: Represents the argv parameter (argument vector). Since there are no command-line arguments, it is set to nullptr (null pointer).
+    MyMainFrame *mainFrame = new MyMainFrame(gClient->GetRoot(), 600, 600); // Specifies the width and height of the MyMainFrame window in pixels.
     app.Run();
 
     // Delete main frame after application ends

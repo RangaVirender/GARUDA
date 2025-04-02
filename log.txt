@@ -1,37 +1,350 @@
--- The C compiler identification is GNU 11.4.0
--- The CXX compiler identification is GNU 11.4.0
--- Detecting C compiler ABI info
--- Detecting C compiler ABI info - done
--- Check for working C compiler: /usr/bin/cc - skipped
--- Detecting C compile features
--- Detecting C compile features - done
--- Detecting CXX compiler ABI info
--- Detecting CXX compiler ABI info - done
--- Check for working CXX compiler: /usr/bin/c++ - skipped
--- Detecting CXX compile features
--- Detecting CXX compile features - done
--- Found EXPAT: /usr/lib/x86_64-linux-gnu/libexpat.so (found suitable version "2.4.7", minimum required is "2.4.7") 
--- Looking for pthread.h
--- Looking for pthread.h - found
--- Performing Test CMAKE_HAVE_LIBC_PTHREAD
--- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
--- Found Threads: TRUE  
--- Found OpenGL: /usr/lib/x86_64-linux-gnu/libOpenGL.so   
--- Found X11: /usr/include   
--- Looking for XOpenDisplay in /usr/lib/x86_64-linux-gnu/libX11.so;/usr/lib/x86_64-linux-gnu/libXext.so
--- Looking for XOpenDisplay in /usr/lib/x86_64-linux-gnu/libX11.so;/usr/lib/x86_64-linux-gnu/libXext.so - found
--- Looking for gethostbyname
--- Looking for gethostbyname - found
--- Looking for connect
--- Looking for connect - found
--- Looking for remove
--- Looking for remove - found
--- Looking for shmat
--- Looking for shmat - found
--- Looking for IceConnectionNumber in ICE
--- Looking for IceConnectionNumber in ICE - found
--- Found Geant4: /mnt/d/ubuntu22/geant4-v11.2.1-MTinstall/lib/cmake/Geant4/Geant4Config.cmake (found version "11.2.1") 
--- Geant4 found: /mnt/d/ubuntu22/geant4-v11.2.1-MTinstall/lib/cmake/Geant4
--- Configuring done
--- Generating done
--- Build files have been written to: /mnt/d/root_scripts/root_gui/geant4_root_app/geant4/build
+[ 10%] Building CXX object CMakeFiles/sim.dir/sim.cc.o
+[ 20%] Linking CXX executable sim
+[100%] Built target sim
+
+**************************************************************
+ Geant4 version Name: geant4-11-02-patch-01 [MT]   (16-February-2024)
+  << in Multi-threaded mode >> 
+                       Copyright : Geant4 Collaboration
+                      References : NIM A 506 (2003), 250-303
+                                 : IEEE-TNS 53 (2006), 270-278
+                                 : NIM A 835 (2016), 186-225
+                             WWW : http://geant4.org/
+**************************************************************
+
+Visualization Manager instantiating with verbosity "warnings (3)"...
+Visualization Manager initialising...
+Registering graphics systems...
+
+You have successfully registered the following graphics systems.
+Registered graphics systems are:
+  ASCIITree (ATree)
+  DAWNFILE (DAWNFILE)
+  G4HepRepFile (HepRepFile)
+  RayTracer (RayTracer)
+  VRML2FILE (VRML2FILE)
+  gMocrenFile (gMocrenFile)
+  TOOLSSG_OFFSCREEN (TSG_OFFSCREEN)
+  TOOLSSG_OFFSCREEN (TSG_OFFSCREEN, TSG_FILE)
+  OpenGLImmediateQt (OGLIQt, OGLI)
+  OpenGLStoredQt (OGLSQt, OGL, OGLS)
+  OpenGLImmediateX (OGLIX, OGLIQt_FALLBACK)
+  OpenGLStoredX (OGLSX, OGLSQt_FALLBACK)
+  TOOLSSG_X11_GLES (TSG_X11_GLES, TSGX11, TSG_QT_GLES_FALLBACK)
+  TOOLSSG_QT_GLES (TSG_QT_GLES, TSGQt, TSG)
+  TOOLSSG_QT_ZB (TSG_QT_ZB, TSGQtZB)
+Default graphics system is: TSG_OFFSCREEN (based on batch session).
+Default window size hint is: 600x600-0+0 (based on G4VisManager initialisation).
+Note: Parameters specified on the command line will override these defaults.
+      Use "vis/open" without parameters to get these defaults.
+
+Registering model factories...
+
+You have successfully registered the following model factories.
+Registered model factories:
+  generic
+  drawByAttribute
+  drawByCharge
+  drawByOriginVolume
+  drawByParticleID
+  drawByEncounteredVolume
+
+Registered models:
+  None
+
+Registered filter factories:
+  attributeFilter
+  chargeFilter
+  originVolumeFilter
+  particleFilter
+  encounteredVolumeFilter
+
+Registered filters:
+  None
+
+You have successfully registered the following user vis actions.
+Run Duration User Vis Actions: none
+End of Event User Vis Actions: none
+End of Run User Vis Actions: none
+
+Some /vis commands (optionally) take a string to specify colour.
+"/vis/list" to see available colours.
+Checking overlaps for volume physDetector:0 (G4Box) ... OK! 
+======================================================================
+======          Radioactive Decay Physics Parameters           =======
+======================================================================
+min MeanLife (from G4NuclideTable)                1 ns 
+Max life time (from G4DeexPrecoParameters)        1000 ps 
+Internal e- conversion flag                       1
+Stored internal conversion coefficients           1
+Enabled atomic relaxation mode                    1
+Enable correlated gamma emission                  0
+Max 2J for sampling of angular correlations       10
+Atomic de-excitation enabled                      1
+Auger electron emission enabled                   1
+Check EM cuts disabled for atomic de-excitation   1
+Use Bearden atomic level energies                 0
+Use ANSTO fluorescence model                      0
+Threshold for very long decay time at rest        1 y  
+======================================================================
+
+====================================================================
+                  HADRONIC PROCESSES SUMMARY (verbose level 1)
+-------------------------------------------------------------------------
+                           Hadronic Processes for GenericIon
+  Process: Radioactivation
+G4VisManager: Using G4TrajectoryDrawByCharge as fallback trajectory model.
+See commands in /vis/modeling/trajectories/ for other options.
+G4WT0 > Event Start Time: Sun Mar 30 22:35:41 2025
+
+G4WT0 > EventID: 0 Elapsed: 0.0992494sec Remaining: infsec Events/sec: 0 Graphics systems deleted.
+Visualization Manager deleting...
+
+**************************************************************
+ Geant4 version Name: geant4-11-02-patch-01 [MT]   (16-February-2024)
+  << in Multi-threaded mode >> 
+                       Copyright : Geant4 Collaboration
+                      References : NIM A 506 (2003), 250-303
+                                 : IEEE-TNS 53 (2006), 270-278
+                                 : NIM A 835 (2016), 186-225
+                             WWW : http://geant4.org/
+**************************************************************
+
+Visualization Manager instantiating with verbosity "warnings (3)"...
+Visualization Manager initialising...
+Registering graphics systems...
+
+You have successfully registered the following graphics systems.
+Registered graphics systems are:
+  ASCIITree (ATree)
+  DAWNFILE (DAWNFILE)
+  G4HepRepFile (HepRepFile)
+  RayTracer (RayTracer)
+  VRML2FILE (VRML2FILE)
+  gMocrenFile (gMocrenFile)
+  TOOLSSG_OFFSCREEN (TSG_OFFSCREEN)
+  TOOLSSG_OFFSCREEN (TSG_OFFSCREEN, TSG_FILE)
+  OpenGLImmediateQt (OGLIQt, OGLI)
+  OpenGLStoredQt (OGLSQt, OGL, OGLS)
+  OpenGLImmediateX (OGLIX, OGLIQt_FALLBACK)
+  OpenGLStoredX (OGLSX, OGLSQt_FALLBACK)
+  TOOLSSG_X11_GLES (TSG_X11_GLES, TSGX11, TSG_QT_GLES_FALLBACK)
+  TOOLSSG_QT_GLES (TSG_QT_GLES, TSGQt, TSG)
+  TOOLSSG_QT_ZB (TSG_QT_ZB, TSGQtZB)
+Default graphics system is: TSG_OFFSCREEN (based on batch session).
+Default window size hint is: 600x600-0+0 (based on G4VisManager initialisation).
+Note: Parameters specified on the command line will override these defaults.
+      Use "vis/open" without parameters to get these defaults.
+
+Registering model factories...
+
+You have successfully registered the following model factories.
+Registered model factories:
+  generic
+  drawByAttribute
+  drawByCharge
+  drawByOriginVolume
+  drawByParticleID
+  drawByEncounteredVolume
+
+Registered models:
+  None
+
+Registered filter factories:
+  attributeFilter
+  chargeFilter
+  originVolumeFilter
+  particleFilter
+  encounteredVolumeFilter
+
+Registered filters:
+  None
+
+You have successfully registered the following user vis actions.
+Run Duration User Vis Actions: none
+End of Event User Vis Actions: none
+End of Run User Vis Actions: none
+
+Some /vis commands (optionally) take a string to specify colour.
+"/vis/list" to see available colours.
+Checking overlaps for volume physDetector:0 (G4Box) ... OK! 
+======================================================================
+======          Radioactive Decay Physics Parameters           =======
+======================================================================
+min MeanLife (from G4NuclideTable)                1 ns 
+Max life time (from G4DeexPrecoParameters)        1000 ps 
+Internal e- conversion flag                       1
+Stored internal conversion coefficients           1
+Enabled atomic relaxation mode                    1
+Enable correlated gamma emission                  0
+Max 2J for sampling of angular correlations       10
+Atomic de-excitation enabled                      1
+Auger electron emission enabled                   1
+Check EM cuts disabled for atomic de-excitation   1
+Use Bearden atomic level energies                 0
+Use ANSTO fluorescence model                      0
+Threshold for very long decay time at rest        1 y  
+======================================================================
+
+====================================================================
+                  HADRONIC PROCESSES SUMMARY (verbose level 1)
+-------------------------------------------------------------------------
+                           Hadronic Processes for GenericIon
+  Process: Radioactivation
+G4VisManager: Using G4TrajectoryDrawByCharge as fallback trajectory model.
+See commands in /vis/modeling/trajectories/ for other options.
+G4WT0 > Event Start Time: Sun Mar 30 22:36:36 2025
+
+G4WT0 > EventID: 0 Elapsed: 0.104256sec Remaining: infsec Events/sec: 0 Graphics systems deleted.
+Visualization Manager deleting...
+
+**************************************************************
+ Geant4 version Name: geant4-11-02-patch-01 [MT]   (16-February-2024)
+  << in Multi-threaded mode >> 
+                       Copyright : Geant4 Collaboration
+                      References : NIM A 506 (2003), 250-303
+                                 : IEEE-TNS 53 (2006), 270-278
+                                 : NIM A 835 (2016), 186-225
+                             WWW : http://geant4.org/
+**************************************************************
+
+Visualization Manager instantiating with verbosity "warnings (3)"...
+Visualization Manager initialising...
+Registering graphics systems...
+
+You have successfully registered the following graphics systems.
+Registered graphics systems are:
+  ASCIITree (ATree)
+  DAWNFILE (DAWNFILE)
+  G4HepRepFile (HepRepFile)
+  RayTracer (RayTracer)
+  VRML2FILE (VRML2FILE)
+  gMocrenFile (gMocrenFile)
+  TOOLSSG_OFFSCREEN (TSG_OFFSCREEN)
+  TOOLSSG_OFFSCREEN (TSG_OFFSCREEN, TSG_FILE)
+  OpenGLImmediateQt (OGLIQt, OGLI)
+  OpenGLStoredQt (OGLSQt, OGL, OGLS)
+  OpenGLImmediateX (OGLIX, OGLIQt_FALLBACK)
+  OpenGLStoredX (OGLSX, OGLSQt_FALLBACK)
+  TOOLSSG_X11_GLES (TSG_X11_GLES, TSGX11, TSG_QT_GLES_FALLBACK)
+  TOOLSSG_QT_GLES (TSG_QT_GLES, TSGQt, TSG)
+  TOOLSSG_QT_ZB (TSG_QT_ZB, TSGQtZB)
+Default graphics system is: TSG_OFFSCREEN (based on batch session).
+Default window size hint is: 600x600-0+0 (based on G4VisManager initialisation).
+Note: Parameters specified on the command line will override these defaults.
+      Use "vis/open" without parameters to get these defaults.
+
+Registering model factories...
+
+You have successfully registered the following model factories.
+Registered model factories:
+  generic
+  drawByAttribute
+  drawByCharge
+  drawByOriginVolume
+  drawByParticleID
+  drawByEncounteredVolume
+
+Registered models:
+  None
+
+Registered filter factories:
+  attributeFilter
+  chargeFilter
+  originVolumeFilter
+  particleFilter
+  encounteredVolumeFilter
+
+Registered filters:
+  None
+
+You have successfully registered the following user vis actions.
+Run Duration User Vis Actions: none
+End of Event User Vis Actions: none
+End of Run User Vis Actions: none
+
+Some /vis commands (optionally) take a string to specify colour.
+"/vis/list" to see available colours.
+Checking overlaps for volume physDetector:0 (G4Box) ... OK! 
+======================================================================
+======          Radioactive Decay Physics Parameters           =======
+======================================================================
+min MeanLife (from G4NuclideTable)                1 ns 
+Max life time (from G4DeexPrecoParameters)        1000 ps 
+Internal e- conversion flag                       1
+Stored internal conversion coefficients           1
+Enabled atomic relaxation mode                    1
+Enable correlated gamma emission                  0
+Max 2J for sampling of angular correlations       10
+Atomic de-excitation enabled                      1
+Auger electron emission enabled                   1
+Check EM cuts disabled for atomic de-excitation   1
+Use Bearden atomic level energies                 0
+Use ANSTO fluorescence model                      0
+Threshold for very long decay time at rest        1 y  
+======================================================================
+
+====================================================================
+                  HADRONIC PROCESSES SUMMARY (verbose level 1)
+-------------------------------------------------------------------------
+                           Hadronic Processes for GenericIon
+  Process: Radioactivation
+G4VisManager: Using G4TrajectoryDrawByCharge as fallback trajectory model.
+See commands in /vis/modeling/trajectories/ for other options.
+### Run 0 starts.
+G4WT0 > ### Run 0 starts on worker thread 0.
+G4WT0 > --> Event 0 starts with initial seeds (13049039,61775110).
+G4WT0 > Event Start Time: Sun Mar 30 22:36:59 2025
+
+G4WT0 > EventID: 0 Elapsed: 0.0963sec Remaining: infsec Events/sec: 0 G4WT0 > --> Event 1 starts with initial seeds (99594690,49590222).
+G4WT0 > --> Event 2 starts with initial seeds (11291749,28987050).
+G4WT0 > --> Event 3 starts with initial seeds (47304437,83761946).
+G4WT0 > --> Event 4 starts with initial seeds (35935592,92693821).
+G4WT0 > --> Event 5 starts with initial seeds (54798860,13721668).
+G4WT0 > --> Event 6 starts with initial seeds (11900984,65585301).
+G4WT0 > --> Event 7 starts with initial seeds (7212557,98037391).
+G4WT0 > --> Event 8 starts with initial seeds (74052786,96299938).
+G4WT0 > --> Event 9 starts with initial seeds (685966,37053858).
+G4WT0 > --> Event 10 starts with initial seeds (57283583,62437780).
+G4WT0 > --> Event 11 starts with initial seeds (47187995,26255523).
+G4WT0 > --> Event 12 starts with initial seeds (53451390,90961550).
+G4WT0 > --> Event 13 starts with initial seeds (87781155,66988757).
+G4WT0 > --> Event 14 starts with initial seeds (9868668,33168047).
+G4WT0 > --> Event 15 starts with initial seeds (84901951,94582009).
+G4WT0 > --> Event 16 starts with initial seeds (58017500,42989873).
+G4WT0 > --> Event 17 starts with initial seeds (97667038,10634223).
+G4WT0 > --> Event 18 starts with initial seeds (96834834,72850076).
+G4WT0 > --> Event 19 starts with initial seeds (92651911,80564493).
+G4WT0 > --> Event 20 starts with initial seeds (721009,89655465).
+G4WT0 > --> Event 21 starts with initial seeds (43814611,47645231).
+G4WT0 > --> Event 22 starts with initial seeds (29104019,13377585).
+G4WT0 > --> Event 23 starts with initial seeds (48524621,19156731).
+G4WT0 > --> Event 24 starts with initial seeds (86191441,57023765).
+G4WT0 > --> Event 25 starts with initial seeds (39093233,32622675).
+G4WT0 > --> Event 26 starts with initial seeds (31878492,34620547).
+G4WT0 > --> Event 27 starts with initial seeds (95772791,52800034).
+G4WT0 > --> Event 28 starts with initial seeds (95218447,30451279).
+G4WT0 > --> Event 29 starts with initial seeds (77038180,75129351).
+G4WT0 > --> Event 30 starts with initial seeds (86070039,36642727).
+G4WT0 > --> Event 31 starts with initial seeds (81508711,79879180).
+G4WT0 > --> Event 32 starts with initial seeds (6306280,71174183).
+G4WT0 > --> Event 33 starts with initial seeds (24187,33708247).
+G4WT0 > --> Event 34 starts with initial seeds (49791780,38851631).
+G4WT0 > --> Event 35 starts with initial seeds (33373881,73986642).
+G4WT0 > --> Event 36 starts with initial seeds (22493698,32754600).
+G4WT0 > --> Event 37 starts with initial seeds (14149118,45813606).
+G4WT0 > --> Event 38 starts with initial seeds (35804018,35497700).
+G4WT0 > --> Event 39 starts with initial seeds (41365009,35023127).
+G4WT0 > --> Event 40 starts with initial seeds (96538836,61261474).
+G4WT0 > --> Event 41 starts with initial seeds (79863766,9526778).
+G4WT0 > --> Event 42 starts with initial seeds (3294194,36780353).
+G4WT0 > --> Event 43 starts with initial seeds (87903479,76843194).
+G4WT0 > --> Event 44 starts with initial seeds (87026216,29405409).
+G4WT0 > --> Event 45 starts with initial seeds (87542917,34632862).
+G4WT0 > --> Event 46 starts with initial seeds (48644552,55222243).
+G4WT0 > --> Event 47 starts with initial seeds (82290383,97781238).
+G4WT0 > --> Event 48 starts with initial seeds (61329293,86894392).
+G4WT0 > --> Event 49 starts with initial seeds (16449038,78096740).
+G4WT0 > --> Event 50 starts with initial seeds (27894285,96974558).
+Graphics systems deleted.
+Visualization Manager deleting...

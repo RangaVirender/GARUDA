@@ -1,31 +1,34 @@
 class MyMainFrame : public TGMainFrame
 {
     private:
-    TGTextButton *source_sh_file_button; // Button for sourcing geant4.sh file to terminal
-    TGTextButton *check_geant4_button; // Button for checking geant4 installation
-    TGButtonGroup* vis_mode_button_group;
-    TGRadioButton* vis_mode_ON_button;
-    TGRadioButton* vis_mode_OFF_button;
-    TGComboBox   *select_det_mat_cbox; // List for selecting detector material
-    TGNumberEntry* no_of_events_entry;
-    TGTextButton *clear_build_button; // Button for cmake
-    TGTextButton *cmake_button; // Button for cmake
-    TGTextButton *make_button; // Button for make
-    TGTextButton *run_sim_button; // Button for running simulation
-    TGTextButton *exit_button;  // Button for exiting the application
-    TGTextButton *load_log_button;  // Button for loading log.txt
-    TGTextButton *load_instrxn_button;  // Button for loading instruction.txt
-    TGTextView   *text_output;    // Text output field
-    TGGroupFrame *grid_frame_1; //grid 1 
-    TGGroupFrame *grid_frame_2; //grid 2 
-    TGGroupFrame *grid_frame_3; //grid 3 
-    TGGroupFrame *grid_frame_4; //grid 3 
-    TString       source_file_path;
-    TString       vis_mode_string;
-    TGLabel      *label;
-    int no_of_events_int;
-    TString no_of_events_string;
-    int frame;
+    TGTextButton  *source_sh_file_button; // Button for sourcing geant4.sh file to terminal
+    TGTextButton  *check_geant4_button; // Button for checking geant4 installation
+    TGButtonGroup * vis_mode_button_group;
+    TGRadioButton * vis_mode_ON_button;
+    TGRadioButton * vis_mode_OFF_button;
+    TGComboBox    *select_det_mat_cbox; // List for selecting detector material
+    TGNumberEntry * no_of_events_entry;
+    TGTextButton  *clear_build_button; // Button for cmake
+    TGTextButton  *cmake_button; // Button for cmake
+    TGTextButton  *make_button; // Button for make
+    TGTextButton  *run_sim_button; // Button for running simulation
+    TGTextButton  *exit_button;  // Button for exiting the application
+    TGTextButton  *load_log_button;  // Button for loading log.txt
+    TGTextButton  *load_instrxn_button;  // Button for loading instruction.txt
+    TGTextView    *text_output;    // Text output field
+    TGGroupFrame  *grid_frame_1; //grid 1 
+    TGGroupFrame  *grid_frame_2; //grid 2 
+    TGGroupFrame  *grid_frame_3; //grid 3 
+    TGGroupFrame  *grid_frame_4; //grid 3 
+    TString        source_file_path;
+    TString        vis_mode_string;
+    TString        det_mat_string;
+    int            det_mat_int;
+    TGLabel       *label;
+    int            no_of_events_int;
+    TString        no_of_events_string;
+    TString        no_of_threads_string;
+    int            frame;
 
     public:
     MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h);
@@ -91,11 +94,14 @@ MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h) : TGMainFrame(p,
     // Add radio buttons to the group
     vis_mode_ON_button  = new TGRadioButton(vis_mode_button_group, "ON");
     vis_mode_OFF_button = new TGRadioButton(vis_mode_button_group, "OFF");
+    vis_mode_ON_button->SetState(kButtonDown); // Marks it as selected
 
     // Create a combobox
     select_det_mat_cbox = new TGComboBox(grid_frame_2, -1);//"Select Detector Material");
-    select_det_mat_cbox->AddEntry("LaBr3:Ce", 1);
-    select_det_mat_cbox->AddEntry("NaI:Tl", 2);
+    select_det_mat_cbox->AddEntry("NaI:Tl", 1);
+    select_det_mat_cbox->AddEntry("LaBr3:Ce", 2);
+    select_det_mat_cbox->AddEntry("CeBr3", 3);
+    select_det_mat_cbox->AddEntry("HPGe", 4);
     // Set default entry (e.g., "Option 2" with ID = 2)
     select_det_mat_cbox->Select(2);
     select_det_mat_cbox->Resize(100, 25); // Resize the text entry field
@@ -393,13 +399,32 @@ void MyMainFrame::run_sim_button_clicked()
                 vis_mode_string = " vis_mode_off ";
             }
     
+   det_mat_int = select_det_mat_cbox->GetSelected();
+   
+   switch(det_mat_int)
+   {
+   case 1: std::cout<<"case 1:"<<std::endl; det_mat_string = " NaI"; break;
+   case 2: std::cout<<"case 2:"<<std::endl; det_mat_string = " LaBr3"; break;
+   case 3: std::cout<<"case 3:"<<std::endl; det_mat_string = " CeBr3"; break;
+   case 4: std::cout<<"case 4:"<<std::endl; det_mat_string = " HPGe"; break;
+   }
+
+   std::cout << "Det mat int: " << det_mat_int << std::endl;
+
+   no_of_threads_string = "1";
+   TString no_of_cores = gSystem->GetFromPipe("grep '^core id' /proc/cpuinfo | sort -u | wc -l");
+   cout << "No of cores in CPU: " << no_of_cores << endl;
    text_output->AddLine("Running simulation..."); update_text_output();     
    
    // Construct a shell command using the extracted executable name
    TString exe_command = "bash -c 'cd "+pwd_path+"/geant4/build && ./" + exec_name
                                                                        + vis_mode_string
+                                                                       + no_of_threads_string + " "
                                                                        + no_of_events_string
-                                                                       + " NaI_det 2>&1 >> ../../log.txt '";
+                                                                       + det_mat_string
+                                                                       + " 2>&1 >> ../../log.txt '";
+   
+   cout << "exe_command: " << exe_command << endl;
    
    // Execute the command
    int sim_status = gSystem->Exec(exe_command);

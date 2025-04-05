@@ -56,17 +56,25 @@ void MyDetectorConstruction::DefineMaterials()
     
     Na = nist->FindOrBuildElement("Na");
     I = nist->FindOrBuildElement("I");
-    NaI = new G4Material("NaI", 3.67*g/cm3, 2);
-    NaI->AddElement(Na, 1);
-    NaI->AddElement(I, 1);
+    NaI_mat = new G4Material("NaI_mat", 3.67*g/cm3, 2);
+    NaI_mat->AddElement(Na, 1);
+    NaI_mat->AddElement(I, 1);
     
     La = nist->FindOrBuildElement("La");
     Br = nist->FindOrBuildElement("Br");
-    LaBr3 = new G4Material("LaBr3", 5.06*g/cm3, 2);
-    LaBr3->AddElement(La, 1);
-    LaBr3->AddElement(Br, 3);
+    LaBr3_mat = new G4Material("LaBr3_mat", 5.06*g/cm3, 2);
+    LaBr3_mat->AddElement(La, 1);
+    LaBr3_mat->AddElement(Br, 3);
     
-
+    Ce = nist->FindOrBuildElement("Ce");
+    CeBr3_mat = new G4Material("CeBr3_mat", 5.1*g/cm3, 2);
+    CeBr3_mat->AddElement(Ce, 1);
+    CeBr3_mat->AddElement(Br, 3);
+    
+    Ge = nist->FindOrBuildElement("Ge");
+    HPGe_mat = new G4Material("HPGe_mat", 5.323*g/cm3, 1);
+    HPGe_mat->AddElement(Ce, 1);
+    
     Al = nist->FindOrBuildElement("Al");
     AlMat = new G4Material("AlMat", 2.7 * g/cm3, 1);
     AlMat->AddElement(Al, 1);
@@ -84,6 +92,7 @@ void MyDetectorConstruction::DefineMaterials()
 
 }
 
+
 G4LogicalVolume *MyDetectorConstruction::CreateLogicalVolume(G4VSolid* solid,
                                                              const G4String& materialName,
                                                              const G4String& volumeName)
@@ -92,9 +101,10 @@ G4LogicalVolume *MyDetectorConstruction::CreateLogicalVolume(G4VSolid* solid,
     G4Material* material = nullptr;
 
     // Handle material selection
-         if (materialName == "LaBr3_det") {material = LaBr3;} 
-    else if (materialName == "NaI_det") {material = NaI;}
-
+    if (materialName == "LaBr3") {material = LaBr3_mat;}
+    else if (materialName == "NaI")   {material = NaI_mat;}
+    else if (materialName == "CeBr3") {material = CeBr3_mat;}
+    else if (materialName == "HPGe")  {material = HPGe_mat;}
     // Create and return the logical volume
     return new G4LogicalVolume(solid, material, volumeName);
     

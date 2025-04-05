@@ -64,8 +64,8 @@ private:
 
     G4OpticalSurface *mirrorSurface;
 
-    G4Material  *worldMat, *NaI , *LaBr3, *AlMat, *steel;
-    G4Element  *Na, *I, *Al,*Fe, *Cr, *Ni, *La, *Br;
+    G4Material  *worldMat, *NaI_mat , *LaBr3_mat, *CeBr3_mat, *AlMat, *steel, *HPGe_mat;
+    G4Element  *Na, *I, *Al,*Fe, *Cr, *Ni, *La, *Br, *Ce, *Ge;
 
     void DefineMaterials();
     virtual G4LogicalVolume *CreateLogicalVolume(G4VSolid* solid, const G4String& materialName, const G4String& volumeName);

@@ -62,17 +62,20 @@ void MyEventAction::EndOfEventAction(const G4Event* anEvent)
 
     G4int  eventID = anEvent->GetEventID();
 
-    if(eventID % 100000 == 0 )
+   // if(eventID % 100000 == 0 )
     {
         //G4cout<< "--- End of event --- : " << eventID <<" \r";
         endTimeSys = std::chrono::system_clock::now(); // Capture end time
         std::chrono::duration<double> elapsed_seconds = endTimeSys - startTimeSys;
-        //G4cout<< "Time taken: " << elapsed_seconds.count() << G4endl;
+        G4cout<< "Time taken: " << elapsed_seconds.count() << G4endl;
         G4double timePerEvent = elapsed_seconds.count()/eventID;
         G4cout<< "EventID: "<<eventID<<
                  " Elapsed: "<< elapsed_seconds.count()<< 
-                 "sec Remaining: " << (noOfEvents_int - eventID)*timePerEvent <<
-                 "sec Events/sec: "<< eventID/elapsed_seconds.count() <<" \r";
-        G4cout.flush();
+                 "sec Remaining: " << (noOfEvents_int - eventID)*timePerEvent;// <<
+         //        "sec Events/sec: "<< eventID/elapsed_seconds.count() <<" \r";
+       // G4cout.flush();
     }
+
+ 
+
 }

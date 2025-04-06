@@ -61,14 +61,13 @@ void MyRunAction::BeginOfRunAction(const G4Run* run)
     strNoOfEvents << noOfEvents_int; 
     strParticleEnergy << particleEnergy;
     strDetDistance << detDistance;
-    
-    strRootFileName << "output" + strRunID.str() +"_" 
-                                + strNoOfEvents.str()+"events_"
-                                + strParticleEnergy.str()+"MeV_"
-                                + strDetDistance.str()+"cm.root";
+  //  
+//    strRootFileName << "output" + strRunID.str() +"_" + strNoOfEvents.str()+"events_"+ strParticleEnergy.str()+"MeV_"
+  //                              + strDetDistance.str()+"cm.root";
 
     //man->OpenFile("output"+strRunID.str()+"_"+strNoOfEvents.str()+"events_"+strParticleEnergy.str()+"MeV_"+strDetDistance.str()+"cm.root");
-     man->OpenFile(strRootFileName.str());
+  //   man->OpenFile(strRootFileName.str());
+       man->OpenFile("output.root");
 }
 
 void MyRunAction::EndOfRunAction(const G4Run*)

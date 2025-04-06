@@ -20,4 +20,5 @@ extern std::chrono::system_clock::time_point endTimeSys;
 extern std::time_t startTime;
 extern std::time_t endTime;
 extern G4String detector_material;
+extern G4String det_shape;
 #endif

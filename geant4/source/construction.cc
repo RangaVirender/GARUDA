@@ -1,4 +1,3 @@
-
 //
 // ********************************************************************
 // * License and Disclaimer                                           *
@@ -123,7 +122,7 @@ G4VPhysicalVolume *MyDetectorConstruction::Construct()
     
     //detDiameter = 3.5;//inches
     detLength = 6.0;//inches 
-    G4double AlThickness = 0.08;//cm
+    G4double AlThickness = 0.2;//cm
     G4double AlGap = 0.8;//cm //gap between Aliminium and crystal
     detDistance = 20.0;//cm //distance between det surface and source
     G4double AlPositionZ = detDistance + AlThickness/2.0 ;
@@ -131,26 +130,37 @@ G4VPhysicalVolume *MyDetectorConstruction::Construct()
     // Create a tubular shape (G4Tubs)
     
     G4double detInnerRadius = 0.; // Inner radius
-    G4double detOuterRadius =  detDiameter*(0.5*2.54); // cm // Outer radius in inches
+    G4double detOuterRadius =  20*(0.5*2.54); // cm // Outer radius in inches
     detHalfLengthZ =  detLength*(0.5*2.54); // cm // Half-length along Z-axis
     G4double detStartPhi = 0.; // Starting angle (in radians)
     G4double detDeltaPhi = 2. * M_PI; // Delta angle (full circle)
 
    // solidDetector = new G4Tubs("solidDetector", detInnerRadius*cm, detOuterRadius*cm, detHalfLengthZ*cm, detStartPhi, detDeltaPhi);
 
+    detPositionZ =  AlPositionZ + AlThickness/2.0 + AlGap + detHalfLengthZ ;
 
 
-    // Define a box solid
-     boxSolid = new G4Box("BoxSolid", 10 * cm, 10 * cm, 10 * cm);
-     boxLogic = MyDetectorConstruction::CreateLogicalVolume(boxSolid, detector_material, "BoxVolume");
+    if(det_shape == "box")
+    {   
+        box_det_solid = new G4Box("box_det_solid", 10 * cm, 10 * cm, 10 * cm);
+        box_det_logic = MyDetectorConstruction::CreateLogicalVolume(box_det_solid, detector_material, "box_det_logic");
+        box_det_phys  = new G4PVPlacement(0, G4ThreeVector(0.*m, 0.*m, detPositionZ*cm), box_det_logic, "box_det_phys", logicWorld, false, 0, true);
+
+    }
+    else if (det_shape == "cylinder")
+    {
+        cylinder_det_solid = new G4Tubs("cylinder_det_solid", 0*cm, 10*cm, 10*cm, 0., 2.0*M_PI);
+        cylinder_det_logic = MyDetectorConstruction::CreateLogicalVolume(cylinder_det_solid, detector_material, "cylinder_det_logic");
+        cylinder_det_phys  = new G4PVPlacement(0, G4ThreeVector(0.*m, 0.*m, detPositionZ*cm), cylinder_det_logic, "cylinder_det_phys", logicWorld, false, 0, true);
+    
+    }
     //logicDetector = new G4LogicalVolume(solidDetector, LaBr3, "logicDetector");
     
 
-    //fScoringVolume = logicDetector;
+    fScoringVolume = cylinder_det_logic;
     
-    detPositionZ =  AlPositionZ + AlThickness/2.0 + AlGap + detHalfLengthZ ;
 
-    physDetector = new G4PVPlacement(0, G4ThreeVector(0.*m, 0.*m, detPositionZ*cm), boxLogic, "physDetector", logicWorld, false, 0, true);
+   // physDetector = new G4PVPlacement(0, G4ThreeVector(0.*m, 0.*m, detPositionZ*cm), boxLogic, "physDetector", logicWorld, false, 0, true);
 
     //create Aluminium surface
     G4double AlInnerRadius = detInnerRadius; // Inner radius
@@ -159,11 +169,11 @@ G4VPhysicalVolume *MyDetectorConstruction::Construct()
     G4double AlStartPhi = 0.; // Starting angle (in radians)
     G4double AlDeltaPhi = 2. * M_PI; // Delta angle (full circle)
 
-   // solidAl = new G4Tubs("solidAl", AlInnerRadius*cm, AlOuterRadius*cm, AlHalfLengthZ*cm, AlStartPhi, AlDeltaPhi );
+    solidAl = new G4Tubs("solidAl", AlInnerRadius*cm, AlOuterRadius*cm, AlHalfLengthZ*cm, AlStartPhi, AlDeltaPhi );
 
-   // logicAl = new G4LogicalVolume(solidAl, AlMat, "logicAl");
+    logicAl = new G4LogicalVolume(solidAl, AlMat, "logicAl");
 
-    //physAl = new G4PVPlacement(0, G4ThreeVector(0.*m, 0.*m, AlPositionZ*cm ), logicAl, "physAl", logicWorld, false, 0, true);
+    physAl = new G4PVPlacement(0, G4ThreeVector(0.*m, 0.*m, 5.0*cm ), logicAl, "physAl", logicWorld, false, 0, true);
      
    //Steel chamber wall
 
@@ -189,8 +199,5 @@ G4VPhysicalVolume *MyDetectorConstruction::Construct()
 
 void MyDetectorConstruction::ConstructSDandField()
 {
-    MySensitiveDetector *sensDet = new MySensitiveDetector("SensitiveDetector");
 
-    if(boxLogic != NULL)
-        boxLogic->SetSensitiveDetector(sensDet);
 }

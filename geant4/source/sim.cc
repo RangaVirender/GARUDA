@@ -44,18 +44,22 @@ G4String visualisation_flag;
 G4double particleEnergy;
 G4double detDiameter;
 G4String detector_material;
+G4String det_shape;
+G4String solid_volume;
 G4String no_of_threads_string;
 
 int main(int argc, char** argv) //number of arguments including ./sim, argument array
 {    
-    //    ./sim vis 10000 LaBr3  
-    //argv  0    1     2     3
+    
+    //    ./sim vis    1    10000 shape LaBr3  
+    //argv  0    1     2     3     4      5
     
       visualisation_flag = argv[1];  // vis for visualisation no_vis for no visualisation
     no_of_threads_string = argv[2];
        noOfEvents_string = argv[3];  //convert string to integer
           noOfEvents_int = stoi(noOfEvents_string);  //convert string to integer
-       detector_material = argv[4];
+            det_shape = argv[4];
+       detector_material = argv[5];
      
     G4UIExecutive* ui = 0;
 
@@ -98,9 +102,12 @@ int main(int argc, char** argv) //number of arguments including ./sim, argument 
         UImanager->ApplyCommand("/vis/scene/add/trajectories smooth");
         UImanager->ApplyCommand("/vis/scene/add/scale 10 cm");
         UImanager->ApplyCommand("/vis/scene/add/axes");
-        UImanager->ApplyCommand("/vis/set/touchable physWorld 0 physDetector 0");//  # select touchable to modify display properties
-        UImanager->ApplyCommand("/vis/touchable/set/forceSolid");
-        UImanager->ApplyCommand("/vis/touchable/set/colour blue");  
+        //UImanager->ApplyCommand("/vis/viewer/set/style surface");//sets globally for all volumes
+        UImanager->ApplyCommand("/vis/geometry/set/forceWireframe logicWorld 1");//set mother volume to wireframe
+        UImanager->ApplyCommand("/vis/geometry/set/forceSolid cylinder_det_logic 1");//set mother volume to wireframe
+        UImanager->ApplyCommand("/vis/geometry/set/forceSolid box_det_logic 1");//set mother volume to wireframe
+        UImanager->ApplyCommand("/vis/geometry/set/colour cylinder_det_logic 0 1 0 0");// 0 R G B
+        UImanager->ApplyCommand("/vis/geometry/set/colour box_det_logic 0 1 0 0");// 0 R G B
         UImanager->ApplyCommand("/vis/viewer/zoom 5");
         UImanager->ApplyCommand("/vis/scene/add/eventID");        
     }
@@ -117,7 +124,7 @@ int main(int argc, char** argv) //number of arguments including ./sim, argument 
         UImanager->ApplyCommand("#/gps/ion 41 94");// #for Nb94 703 871 1574
         UImanager->ApplyCommand("#/gps/ion 11 24");// #for Na24 1368 2754 4122
         UImanager->ApplyCommand("#/gps/ion 21 46");// #for Sc46 889 1120 2009
-        UImanager->ApplyCommand("#/gps/energy 0 keV");// #kinetic energy of ion
+        UImanager->ApplyCommand("/gps/energy 0 keV");// #kinetic energy of ion
         UImanager->ApplyCommand("/gps/pos/type Point");
         UImanager->ApplyCommand("/gps/pos/centre 0. 0. 0. cm"); 
         UImanager->ApplyCommand("/gps/ang/type iso");

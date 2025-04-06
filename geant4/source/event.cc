@@ -45,7 +45,7 @@ void MyEventAction::BeginOfEventAction(const G4Event* anEvent)
     {
         startTimeSys = std::chrono::system_clock::now(); // Capture start time
         startTime = std::chrono::system_clock::to_time_t(startTimeSys);
-        G4cout<< "Event Start Time: " <<std::ctime(&startTime) << G4endl;
+       // G4cout<< "Event Start Time: " <<std::ctime(&startTime) << G4endl;
     }
     
     
@@ -61,19 +61,21 @@ void MyEventAction::EndOfEventAction(const G4Event* anEvent)
     man->AddNtupleRow(0);
 
     G4int  eventID = anEvent->GetEventID();
-
-   // if(eventID % 100000 == 0 )
+    
+    G4int update_after_events = std::round(noOfEvents_int/100.0);
+    
+    if(noOfEvents_int >=51 && eventID % update_after_events == 0 )
     {
         //G4cout<< "--- End of event --- : " << eventID <<" \r";
         endTimeSys = std::chrono::system_clock::now(); // Capture end time
         std::chrono::duration<double> elapsed_seconds = endTimeSys - startTimeSys;
-        G4cout<< "Time taken: " << elapsed_seconds.count() << G4endl;
+       // G4cout<< "Time taken: " << elapsed_seconds.count() << G4endl;
         G4double timePerEvent = elapsed_seconds.count()/eventID;
         G4cout<< "EventID: "<<eventID<<
                  " Elapsed: "<< elapsed_seconds.count()<< 
-                 "sec Remaining: " << (noOfEvents_int - eventID)*timePerEvent;// <<
-         //        "sec Events/sec: "<< eventID/elapsed_seconds.count() <<" \r";
-       // G4cout.flush();
+                 "sec Remaining: " << (noOfEvents_int - eventID)*timePerEvent <<
+                 "sec Events/sec: "<< eventID/elapsed_seconds.count() <<" \r";
+        G4cout.flush();
     }
 
  

@@ -64,7 +64,8 @@ int main(int argc, char** argv) //number of arguments including ./sim, argument 
     #else
       G4RunManager* runManager = new G4RunManager;
     #endif
-
+    
+    runManager->SetVerboseLevel(0);
     runManager->SetUserInitialization(new MyDetectorConstruction());
     runManager->SetUserInitialization(new MyPhysicsList());
     runManager->SetUserInitialization(new MyActionInitialization());
@@ -121,7 +122,7 @@ int main(int argc, char** argv) //number of arguments including ./sim, argument 
         UImanager->ApplyCommand("/gps/pos/centre 0. 0. 0. cm"); 
         UImanager->ApplyCommand("/gps/ang/type iso");
         
-        
+     /*   
         if(noOfEvents_int > 50)
         {
         G4double print_prog_no_double = noOfEvents_int/50;
@@ -130,7 +131,7 @@ int main(int argc, char** argv) //number of arguments including ./sim, argument 
         G4String print_prog_no_command = "/run/printProgress ";
         UImanager->ApplyCommand(print_prog_no_command+print_prog_no_string);    
         }
-        
+       */ 
         G4String run_beam_on_command = "/run/beamOn ";
   G4cout << "Now beam on" << G4endl;
 

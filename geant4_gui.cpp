@@ -7,11 +7,13 @@ class MyMainFrame : public TGMainFrame
     TGRadioButton * vis_mode_ON_button;
     TGRadioButton * vis_mode_OFF_button;
     TGComboBox    *select_det_mat_cbox; // List for selecting detector material
-    TGNumberEntry * no_of_events_entry;
+    TGNumberEntry *no_of_events_entry;
+    TGNumberEntry *no_of_threads_entry;
     TGTextButton  *clear_build_button; // Button for cmake
     TGTextButton  *cmake_button; // Button for cmake
     TGTextButton  *make_button; // Button for make
     TGTextButton  *run_sim_button; // Button for running simulation
+    TGTextButton  *stop_sim_button; // Button for running simulation
     TGTextButton  *exit_button;  // Button for exiting the application
     TGTextButton  *load_log_button;  // Button for loading log.txt
     TGTextButton  *load_instrxn_button;  // Button for loading instruction.txt
@@ -28,6 +30,9 @@ class MyMainFrame : public TGMainFrame
     int            no_of_events_int;
     TString        no_of_events_string;
     TString        no_of_threads_string;
+    int            no_of_threads_int;
+    int            no_of_cores_int;
+    TString        no_of_cores_string;
     int            frame;
 
     public:
@@ -39,6 +44,7 @@ class MyMainFrame : public TGMainFrame
     void cmake_button_clicked(); // Action for "Click Me" button
     void make_button_clicked(); // Action for "Click Me" button
     void run_sim_button_clicked(); // Action for "Click Me" button
+    void stop_sim_button_clicked(); // Action for "Click Me" button
     void exit_button_clicked();  // Action for "Exit" button
     void load_instrxn_button_clicked();
     void load_log_button_clicked();
@@ -107,12 +113,20 @@ MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h) : TGMainFrame(p,
     select_det_mat_cbox->Resize(100, 25); // Resize the text entry field
 
     // Create a text entry field
+    no_of_threads_entry = new TGNumberEntry(grid_frame_2, 4, 2, -1, TGNumberFormat::kNESInteger);//default value, max digits, ID 
+    // no_of_events_entry->SetText("10"); // Set default text
+    
+    no_of_cores_string = gSystem->GetFromPipe("grep '^core id' /proc/cpuinfo | sort -u | wc -l");
+    cout << "No of cores in CPU: " << no_of_cores_string << endl;
+    no_of_cores_int = no_of_cores_string.Atoi();
+    no_of_threads_entry->SetLimits(TGNumberFormat::kNELLimitMinMax, 1, no_of_cores_int);
+   
     no_of_events_entry = new TGNumberEntry(grid_frame_2, 1, 9, -1, TGNumberFormat::kNESInteger);//default value, max digits, ID 
-   // no_of_events_entry->SetText("10"); // Set default text
-    no_of_events_entry->SetLimits(TGNumberFormat::kNELLimitMin, 1);
-   // no_of_events_entry->Resize(200, 25); // Resize the text entry field
-
+    // no_of_events_entry->SetText("10"); // Set default text
+    no_of_events_entry->SetLimits(TGNumberFormat::kNELLimitMinMax, 1, 1e8);
+   
     grid_frame_2->AddFrame(vis_mode_button_group, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 0));
+    grid_frame_2->AddFrame(no_of_threads_entry, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 0));
     grid_frame_2->AddFrame(no_of_events_entry, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 0));
     grid_frame_2->AddFrame(select_det_mat_cbox, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 0));
     AddFrame(grid_frame_2, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 5));
@@ -133,11 +147,16 @@ MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h) : TGMainFrame(p,
     // Create run simulation button
     run_sim_button = new TGTextButton(grid_frame_3, "Run Simulation");
     run_sim_button->Connect("Clicked()", "MyMainFrame", this, "run_sim_button_clicked()"); // Connect to click handler
+    
+    // Create stop simulation button
+    stop_sim_button = new TGTextButton(grid_frame_3, "Stop Simulation");
+    stop_sim_button->Connect("Clicked()", "MyMainFrame", this, "stop_sim_button_clicked()"); // Connect to click handler
 
     grid_frame_3->AddFrame(clear_build_button, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 5));
     grid_frame_3->AddFrame(cmake_button, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 5));
     grid_frame_3->AddFrame(make_button, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 5));
     grid_frame_3->AddFrame(run_sim_button, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 5));
+    grid_frame_3->AddFrame(stop_sim_button, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 5));
     AddFrame(grid_frame_3, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 5));
  
     grid_frame_4 = new TGGroupFrame(this, "Primary functions", kHorizontalFrame);
@@ -172,6 +191,7 @@ MyMainFrame::~MyMainFrame() {
     RemoveFrame(cmake_button);          delete cmake_button;
     RemoveFrame(make_button);           delete make_button;
     RemoveFrame(run_sim_button);        delete run_sim_button;
+    RemoveFrame(stop_sim_button);       delete stop_sim_button;
     RemoveFrame(exit_button);           delete exit_button;
     RemoveFrame(load_instrxn_button);   delete load_instrxn_button;
     RemoveFrame(load_log_button);       delete load_log_button;
@@ -321,7 +341,7 @@ void MyMainFrame::cmake_button_clicked()
 
     text_output->AddLine("Running CMAKE..."); update_text_output();
     
-    TString cmake_command = "bash -c 'cd "+pwd_path+"/geant4/build && cmake ../source >> ../../log.txt 2>&1'";   
+    TString cmake_command = "bash -c 'cd "+pwd_path+"/geant4/build && cmake ../source'";// >> ../../log.txt 2>&1'";   
     
     int cmake_status = gSystem->Exec(cmake_command);// > to rewrite log file
     if(cmake_status != 0)
@@ -388,6 +408,14 @@ void MyMainFrame::run_sim_button_clicked()
    TString print_no_of_events_command = "No of events: " + no_of_events_string;
    text_output->AddLine(print_no_of_events_command); update_text_output();
    
+   if(no_of_events_int > 100)
+   {
+        std::cout << "No of events " << no_of_events_int << " is more than 100" <<std::endl;
+        std::cout << "Turning visualisation OFF..." <<std::endl;
+        vis_mode_OFF_button->SetState(kButtonDown); // Marks it as selected
+        vis_mode_ON_button->SetState(kButtonUp); // Marks it as unselected
+   }
+   
     if(vis_mode_ON_button->GetState() == kButtonDown) //kButtonDown means button is pressed
        {
            std::cout << "vis_mode_on" << std::endl;
@@ -398,7 +426,7 @@ void MyMainFrame::run_sim_button_clicked()
                 std::cout << "vis_mode_off" << std::endl;
                 vis_mode_string = " vis_mode_off ";
             }
-    
+   
    det_mat_int = select_det_mat_cbox->GetSelected();
    
    switch(det_mat_int)
@@ -411,9 +439,9 @@ void MyMainFrame::run_sim_button_clicked()
 
    std::cout << "Det mat int: " << det_mat_int << std::endl;
 
-   no_of_threads_string = "1";
-   TString no_of_cores = gSystem->GetFromPipe("grep '^core id' /proc/cpuinfo | sort -u | wc -l");
-   cout << "No of cores in CPU: " << no_of_cores << endl;
+   no_of_threads_int = no_of_threads_entry->GetNumber();
+   no_of_threads_string = to_string(no_of_threads_int);
+   cout << "\033[1;31m No of threads used of simulations: \033[0m" << no_of_threads_int << endl;
    text_output->AddLine("Running simulation..."); update_text_output();     
    
    // Construct a shell command using the extracted executable name
@@ -422,7 +450,8 @@ void MyMainFrame::run_sim_button_clicked()
                                                                        + no_of_threads_string + " "
                                                                        + no_of_events_string
                                                                        + det_mat_string
-                                                                       + " 2>&1 >> ../../log.txt '";
+                                                                       //+ " 2>&1 >> ../../log.txt
+                                                                       + " '& echo $!";
    
    cout << "exe_command: " << exe_command << endl;
    
@@ -463,6 +492,12 @@ void MyMainFrame::run_sim_button_clicked()
     label->SetText("");
 }
 
+void MyMainFrame::stop_sim_button_clicked()
+{
+   gSystem->Exec("pkill -f ./sim");
+   std::cout << "Simulation stopped...\n";
+   
+}
 
 void MyMainFrame::exit_button_clicked()
 {

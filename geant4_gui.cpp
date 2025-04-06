@@ -6,6 +6,7 @@ class MyMainFrame : public TGMainFrame
     TGButtonGroup *vis_mode_button_group;
     TGRadioButton *vis_mode_ON_button;
     TGRadioButton *vis_mode_OFF_button;
+    TGComboBox    *select_rad_source_cbox; // List for selecting detector material
     TGComboBox    *select_det_mat_cbox; // List for selecting detector material
     TGComboBox    *select_det_shape_cbox; // List for selecting detector material
     TGNumberEntry *no_of_events_entry;
@@ -28,6 +29,8 @@ class MyMainFrame : public TGMainFrame
     TString        vis_mode_string;
     TString        det_mat_string;
     TString        det_shape_string;
+    TString        rad_source_string;
+    int            rad_source_int;
     int            det_mat_int;
     int            det_shape_int;
     TGLabel       *label;
@@ -108,12 +111,20 @@ MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h) : TGMainFrame(p,
     vis_mode_ON_button->SetState(kButtonDown); // Marks it as selected
 
     // Create a combobox
+    select_rad_source_cbox = new TGComboBox(grid_frame_2, -1);
+    select_rad_source_cbox->AddEntry("Cs137", 1);
+    select_rad_source_cbox->AddEntry("Co60", 2);
+    select_rad_source_cbox->AddEntry("Na22", 3);
+    select_rad_source_cbox->AddEntry("Ba133", 4);
+    select_rad_source_cbox->Select(1);
+    select_rad_source_cbox->Resize(100, 25); // Resize the text entry field
+
+// Create a combobox
     select_det_shape_cbox = new TGComboBox(grid_frame_2, -1);
     select_det_shape_cbox->AddEntry("Cylinder", 1);
     select_det_shape_cbox->AddEntry("Box", 2);
     select_det_shape_cbox->Select(1);
     select_det_shape_cbox->Resize(100, 25); // Resize the text entry field
-
 
     // Create a combobox
     select_det_mat_cbox = new TGComboBox(grid_frame_2, -1);//"Select Detector Material");
@@ -141,6 +152,7 @@ MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h) : TGMainFrame(p,
     grid_frame_2->AddFrame(vis_mode_button_group, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 0));
     grid_frame_2->AddFrame(no_of_threads_entry, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 0));
     grid_frame_2->AddFrame(no_of_events_entry, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 0));
+    grid_frame_2->AddFrame(select_rad_source_cbox, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 0));
     grid_frame_2->AddFrame(select_det_shape_cbox, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 0));
     grid_frame_2->AddFrame(select_det_mat_cbox, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 0));
     AddFrame(grid_frame_2, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 5));
@@ -412,31 +424,13 @@ void MyMainFrame::run_sim_button_clicked()
 
    label->SetText("Working...");
    text_output->AddLine("Started..."); update_text_output();
-   //text_output->AddLine("Grabbing executable file..."); update_text_output();
    
-   // Execute the shell command and store output
-   //TString get_exe_name_command = "grep -m 1 'Built target' " + pwd_path + "/log.txt  | awk '{print $4}'";
-   
-   //TString exec_name = gSystem->GetFromPipe("grep 'Built target' log.txt | awk '{print $4}'");
-   //TString exec_name = gSystem->GetFromPipe(get_exe_name_command);
-   //if(exec_name == "")
-  // {
-  //   text_output->AddLine("Couldnt find executable. Run MAKE."); update_text_output();
-  //   label->SetText("");        
-  //   return;
-  // }
-   // Print the extracted executable name
-   // Construct a shell command using the extracted executable name
-  // TString print_exe_name_command = "Ecexutable file name is: " + exec_name;
-  // text_output->AddLine(print_exe_name_command); update_text_output();
-   
-   //TString exec_name = "sim";
-
    no_of_events_int = no_of_events_entry->GetNumber();
    no_of_events_string = to_string(no_of_events_int);
    TString print_no_of_events_command = "No of events: " + no_of_events_string;
    text_output->AddLine(print_no_of_events_command); update_text_output();
    
+
    if(no_of_events_int > 100)
    {
         std::cout << "No of events " << no_of_events_int << " is more than 100" <<std::endl;
@@ -456,6 +450,15 @@ void MyMainFrame::run_sim_button_clicked()
                 vis_mode_string = " vis_mode_off ";
             }
 
+   rad_source_int = select_rad_source_cbox->GetSelected();
+   switch(rad_source_int)
+   {
+   case 1: std::cout<<"case 1:"<<std::endl; rad_source_string = " Cs137 ";  break;
+   case 2: std::cout<<"case 2:"<<std::endl; rad_source_string = " Co60 ";   break;
+   case 3: std::cout<<"case 3:"<<std::endl; rad_source_string = " Na22 ";   break;
+   case 4: std::cout<<"case 4:"<<std::endl; rad_source_string = " Ba133 ";  break;
+   }
+
    det_shape_int = select_det_shape_cbox->GetSelected();
    
    switch(det_shape_int)
@@ -464,7 +467,7 @@ void MyMainFrame::run_sim_button_clicked()
    case 2: std::cout<<"case 2:"<<std::endl; det_shape_string = " box "; break;
    }
 
-   std::cout << "Det mat int: " << det_mat_int << std::endl;
+   std::cout << "Det shape int: " << det_shape_int << std::endl;
    
    det_mat_int = select_det_mat_cbox->GetSelected();
    
@@ -488,6 +491,7 @@ void MyMainFrame::run_sim_button_clicked()
    TString exe_command = "bash -c 'cd "+pwd_path+"/geant4/build && ./sim " + vis_mode_string
                                                                            + no_of_threads_string + " "
                                                                            + no_of_events_string
+                                                                           + rad_source_string
                                                                            + det_shape_string
                                                                            + det_mat_string
                                                                            //+ " 2>&1 >> ../../log.txt
@@ -555,6 +559,7 @@ void MyMainFrame::plot_spec_button_clicked()
    TH1D* h1 = new TH1D("h1", "", 3000, 0.01, 3.01);
    t1->Draw("fEdep>>h1","","");
    gPad->SetLogy(); 
+   
    return;
 }
 

@@ -3,10 +3,11 @@ class MyMainFrame : public TGMainFrame
     private:
     TGTextButton  *source_sh_file_button; // Button for sourcing geant4.sh file to terminal
     TGTextButton  *check_geant4_button; // Button for checking geant4 installation
-    TGButtonGroup * vis_mode_button_group;
-    TGRadioButton * vis_mode_ON_button;
-    TGRadioButton * vis_mode_OFF_button;
+    TGButtonGroup *vis_mode_button_group;
+    TGRadioButton *vis_mode_ON_button;
+    TGRadioButton *vis_mode_OFF_button;
     TGComboBox    *select_det_mat_cbox; // List for selecting detector material
+    TGComboBox    *select_det_shape_cbox; // List for selecting detector material
     TGNumberEntry *no_of_events_entry;
     TGNumberEntry *no_of_threads_entry;
     TGTextButton  *clear_build_button; // Button for cmake
@@ -14,6 +15,7 @@ class MyMainFrame : public TGMainFrame
     TGTextButton  *make_button; // Button for make
     TGTextButton  *run_sim_button; // Button for running simulation
     TGTextButton  *stop_sim_button; // Button for running simulation
+    TGTextButton  *plot_spec_button; // Button for running simulation
     TGTextButton  *exit_button;  // Button for exiting the application
     TGTextButton  *load_log_button;  // Button for loading log.txt
     TGTextButton  *load_instrxn_button;  // Button for loading instruction.txt
@@ -25,7 +27,9 @@ class MyMainFrame : public TGMainFrame
     TString        source_file_path;
     TString        vis_mode_string;
     TString        det_mat_string;
+    TString        det_shape_string;
     int            det_mat_int;
+    int            det_shape_int;
     TGLabel       *label;
     int            no_of_events_int;
     TString        no_of_events_string;
@@ -45,6 +49,7 @@ class MyMainFrame : public TGMainFrame
     void make_button_clicked(); // Action for "Click Me" button
     void run_sim_button_clicked(); // Action for "Click Me" button
     void stop_sim_button_clicked(); // Action for "Click Me" button
+    void plot_spec_button_clicked(); // Action for "Click Me" button
     void exit_button_clicked();  // Action for "Exit" button
     void load_instrxn_button_clicked();
     void load_log_button_clicked();
@@ -103,6 +108,14 @@ MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h) : TGMainFrame(p,
     vis_mode_ON_button->SetState(kButtonDown); // Marks it as selected
 
     // Create a combobox
+    select_det_shape_cbox = new TGComboBox(grid_frame_2, -1);
+    select_det_shape_cbox->AddEntry("Cylinder", 1);
+    select_det_shape_cbox->AddEntry("Box", 2);
+    select_det_shape_cbox->Select(1);
+    select_det_shape_cbox->Resize(100, 25); // Resize the text entry field
+
+
+    // Create a combobox
     select_det_mat_cbox = new TGComboBox(grid_frame_2, -1);//"Select Detector Material");
     select_det_mat_cbox->AddEntry("NaI:Tl", 1);
     select_det_mat_cbox->AddEntry("LaBr3:Ce", 2);
@@ -128,6 +141,7 @@ MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h) : TGMainFrame(p,
     grid_frame_2->AddFrame(vis_mode_button_group, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 0));
     grid_frame_2->AddFrame(no_of_threads_entry, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 0));
     grid_frame_2->AddFrame(no_of_events_entry, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 0));
+    grid_frame_2->AddFrame(select_det_shape_cbox, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 0));
     grid_frame_2->AddFrame(select_det_mat_cbox, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 0));
     AddFrame(grid_frame_2, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 5));
     
@@ -143,7 +157,7 @@ MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h) : TGMainFrame(p,
     // Create make button
     make_button = new TGTextButton(grid_frame_3, "Run MAKE");
     make_button->Connect("Clicked()", "MyMainFrame", this, "make_button_clicked()"); // Connect to click handler
- 
+    
     // Create run simulation button
     run_sim_button = new TGTextButton(grid_frame_3, "Run Simulation");
     run_sim_button->Connect("Clicked()", "MyMainFrame", this, "run_sim_button_clicked()"); // Connect to click handler
@@ -168,8 +182,12 @@ MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h) : TGMainFrame(p,
     exit_button = new TGTextButton(grid_frame_4, "Exit");
     exit_button->Connect("Clicked()", "MyMainFrame", this, "exit_button_clicked()"); // Connect to exit handler
     
+    plot_spec_button = new TGTextButton(grid_frame_4, "Plot spectrum");
+    plot_spec_button->Connect("Clicked()", "MyMainFrame", this, "plot_spec_button_clicked()"); // Connect to exit handler
+    
 
     grid_frame_4->AddFrame(label, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 5));
+    grid_frame_4->AddFrame(plot_spec_button, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 5));
     grid_frame_4->AddFrame(exit_button, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 5));
     AddFrame(grid_frame_4, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 5));
     
@@ -341,7 +359,7 @@ void MyMainFrame::cmake_button_clicked()
 
     text_output->AddLine("Running CMAKE..."); update_text_output();
     
-    TString cmake_command = "bash -c 'cd "+pwd_path+"/geant4/build && cmake ../source'";// >> ../../log.txt 2>&1'";   
+    TString cmake_command = "bash -c 'cd "+pwd_path+"/geant4/build && cmake ../source'";   
     
     int cmake_status = gSystem->Exec(cmake_command);// > to rewrite log file
     if(cmake_status != 0)
@@ -358,6 +376,8 @@ void MyMainFrame::cmake_button_clicked()
     
      
 }
+
+
 //2>&1 is a shell redirection operator. It redirects stderr (error output, file descriptor 2) to
 //stdout (standard output, file descriptor 1) so that both standard output and error messages appear in the same stream.
         
@@ -366,7 +386,7 @@ void MyMainFrame::make_button_clicked()
     label->SetText("Working...");
    text_output->AddLine("Running MAKE using 4 cores..."); update_text_output();
     
-    TString make_command = "bash -c 'cd "+pwd_path+"/geant4/build && make -j4 >> ../../log.txt 2>&1'";   
+    TString make_command = "bash -c 'cd "+pwd_path+"/geant4/build && make -j4'";   
     
     int make_status = gSystem->Exec(make_command);// >> append to log file
     if(make_status != 0)
@@ -382,27 +402,36 @@ void MyMainFrame::make_button_clicked()
      label->SetText("");
 }
 
+
 void MyMainFrame::run_sim_button_clicked()
-{  label->SetText("Working...");
+{  
+  //  make_button->SetEnabled(kFALSE);
+  // cmake_button->SetEnabled(kFALSE);
+   
+   gSystem->Exec("bash -c 'cd "+pwd_path+"/geant4/build && rm -rf *.root '");
+
+   label->SetText("Working...");
    text_output->AddLine("Started..."); update_text_output();
-   text_output->AddLine("Grabbing executable file..."); update_text_output();
+   //text_output->AddLine("Grabbing executable file..."); update_text_output();
    
    // Execute the shell command and store output
-   TString get_exe_name_command = "grep -m 1 'Built target' " + pwd_path + "/log.txt  | awk '{print $4}'";
+   //TString get_exe_name_command = "grep -m 1 'Built target' " + pwd_path + "/log.txt  | awk '{print $4}'";
    
    //TString exec_name = gSystem->GetFromPipe("grep 'Built target' log.txt | awk '{print $4}'");
-   TString exec_name = gSystem->GetFromPipe(get_exe_name_command);
-   if(exec_name == "")
-   {
-     text_output->AddLine("Couldnt find executable. Run MAKE."); update_text_output();
-     label->SetText("");        
-     return;
-   }
+   //TString exec_name = gSystem->GetFromPipe(get_exe_name_command);
+   //if(exec_name == "")
+  // {
+  //   text_output->AddLine("Couldnt find executable. Run MAKE."); update_text_output();
+  //   label->SetText("");        
+  //   return;
+  // }
    // Print the extracted executable name
    // Construct a shell command using the extracted executable name
-   TString print_exe_name_command = "Ecexutable file name is: " + exec_name;
-   text_output->AddLine(print_exe_name_command); update_text_output();
+  // TString print_exe_name_command = "Ecexutable file name is: " + exec_name;
+  // text_output->AddLine(print_exe_name_command); update_text_output();
    
+   //TString exec_name = "sim";
+
    no_of_events_int = no_of_events_entry->GetNumber();
    no_of_events_string = to_string(no_of_events_int);
    TString print_no_of_events_command = "No of events: " + no_of_events_string;
@@ -426,6 +455,16 @@ void MyMainFrame::run_sim_button_clicked()
                 std::cout << "vis_mode_off" << std::endl;
                 vis_mode_string = " vis_mode_off ";
             }
+
+   det_shape_int = select_det_shape_cbox->GetSelected();
+   
+   switch(det_shape_int)
+   {
+   case 1: std::cout<<"case 1:"<<std::endl; det_shape_string = " cylinder ";      break;
+   case 2: std::cout<<"case 2:"<<std::endl; det_shape_string = " box "; break;
+   }
+
+   std::cout << "Det mat int: " << det_mat_int << std::endl;
    
    det_mat_int = select_det_mat_cbox->GetSelected();
    
@@ -439,19 +478,21 @@ void MyMainFrame::run_sim_button_clicked()
 
    std::cout << "Det mat int: " << det_mat_int << std::endl;
 
+
    no_of_threads_int = no_of_threads_entry->GetNumber();
    no_of_threads_string = to_string(no_of_threads_int);
    cout << "\033[1;31m No of threads used of simulations: \033[0m" << no_of_threads_int << endl;
    text_output->AddLine("Running simulation..."); update_text_output();     
    
    // Construct a shell command using the extracted executable name
-   TString exe_command = "bash -c 'cd "+pwd_path+"/geant4/build && ./" + exec_name
-                                                                       + vis_mode_string
-                                                                       + no_of_threads_string + " "
-                                                                       + no_of_events_string
-                                                                       + det_mat_string
-                                                                       //+ " 2>&1 >> ../../log.txt
-                                                                       + " '& echo $!";
+   TString exe_command = "bash -c 'cd "+pwd_path+"/geant4/build && ./sim " + vis_mode_string
+                                                                           + no_of_threads_string + " "
+                                                                           + no_of_events_string
+                                                                           + det_shape_string
+                                                                           + det_mat_string
+                                                                           //+ " 2>&1 >> ../../log.txt
+                                                                           + " ' ";
+                                                                           //+ " ' & ";
    
    cout << "exe_command: " << exe_command << endl;
    
@@ -461,10 +502,15 @@ void MyMainFrame::run_sim_button_clicked()
    // Check execution result
    cout << "Execution returned: " << sim_status << endl;
    
+  // cout << "Merging ROOT files " << endl;
+  // gSystem->Exec("bash -c 'cd "+pwd_path+"/geant4/build && hadd -f output.root output_t*.root' ");
+   // -f flag to overwrite the merged output file
+  // cout << "ROOT files merged to output.root" << endl;
+
    if (sim_status != 0)
     {
        text_output->AddLine("Error: Simulation failed. Check log.txt"); update_text_output();
-       TString exe_command_2 = "bash -c 'cd "+pwd_path+"/geant4/build && ./" + exec_name + " 2>&1'";
+       TString exe_command_2 = "bash -c 'cd "+pwd_path+"/geant4/build && ./sim 2>&1'";
        
        TString sim_output = gSystem->GetFromPipe(exe_command_2);
        // Convert TString to std::string
@@ -490,13 +536,33 @@ void MyMainFrame::run_sim_button_clicked()
     }
     text_output->AddLine("Run successful"); update_text_output();
     label->SetText("");
+
+  //  make_button->SetEnabled(kTRUE);
+  // cmake_button->SetEnabled(kTRUE);
+   return;
+}
+
+void MyMainFrame::plot_spec_button_clicked()
+{
+    cout << "Merging ROOT files " << endl;
+   gSystem->Exec("bash -c 'cd "+pwd_path+"/geant4/build && hadd -f output.root output_t*.root' ");
+   // -f flag to overwrite the merged output file
+   cout << "ROOT files merged to output.root" << endl;
+
+   TFile* f1 = new TFile("geant4/build/output.root","READ");
+   TCanvas* c1 = new TCanvas("c1");    
+   TTree* t1 = (TTree*)f1->Get("Scoring");
+   TH1D* h1 = new TH1D("h1", "", 3000, 0.01, 3.01);
+   t1->Draw("fEdep>>h1","","");
+   gPad->SetLogy(); 
+   return;
 }
 
 void MyMainFrame::stop_sim_button_clicked()
 {
    gSystem->Exec("pkill -f ./sim");
    std::cout << "Simulation stopped...\n";
-   
+   return;
 }
 
 void MyMainFrame::exit_button_clicked()

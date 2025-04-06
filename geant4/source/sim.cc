@@ -47,6 +47,7 @@ G4String detector_material;
 G4String det_shape;
 G4String solid_volume;
 G4String no_of_threads_string;
+G4String rad_source_string;
 
 int main(int argc, char** argv) //number of arguments including ./sim, argument array
 {    
@@ -58,8 +59,9 @@ int main(int argc, char** argv) //number of arguments including ./sim, argument 
     no_of_threads_string = argv[2];
        noOfEvents_string = argv[3];  //convert string to integer
           noOfEvents_int = stoi(noOfEvents_string);  //convert string to integer
-            det_shape = argv[4];
-       detector_material = argv[5];
+       rad_source_string = argv[4];
+               det_shape = argv[5];
+       detector_material = argv[6];
      
     G4UIExecutive* ui = 0;
 
@@ -118,9 +120,12 @@ int main(int argc, char** argv) //number of arguments including ./sim, argument 
 
         UImanager->ApplyCommand("/gps/particle ion");
         UImanager->ApplyCommand("/process/had/rdm/thresholdForVeryLongDecayTime 100 year");
-        UImanager->ApplyCommand("#/gps/ion 55 137");// #for Cs137 662 keV");
-        UImanager->ApplyCommand("#/gps/ion 27 60");// #for Co60 1173 1332 2505
-        UImanager->ApplyCommand("/gps/ion 11 22");// #for Na22 511 1274 1785
+      
+      if(rad_source_string == "Cs137") { UImanager->ApplyCommand("/gps/ion 55 137");}// #for Cs137 662
+      if(rad_source_string == "Co60") { UImanager->ApplyCommand("/gps/ion 27 60");}// #for Co60 1173 1332 2505
+      if(rad_source_string == "Na22") { UImanager->ApplyCommand("/gps/ion 11 22");}// #for Na22 511 1274 1785
+      if(rad_source_string == "Ba133") { UImanager->ApplyCommand("/gps/ion 56 133");}// 
+        
         UImanager->ApplyCommand("#/gps/ion 41 94");// #for Nb94 703 871 1574
         UImanager->ApplyCommand("#/gps/ion 11 24");// #for Na24 1368 2754 4122
         UImanager->ApplyCommand("#/gps/ion 21 46");// #for Sc46 889 1120 2009

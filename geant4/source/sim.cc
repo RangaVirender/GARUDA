@@ -48,6 +48,18 @@ G4String det_shape;
 G4String solid_volume;
 G4String no_of_threads_string;
 G4String rad_source_string;
+G4String det_length_string;
+
+G4String det_inner_radius_string;
+G4String det_outer_radius_string;
+G4String det_source_dis_string;
+G4String units_string;
+G4double det_inner_radius_double;
+G4double det_outer_radius_double;
+G4double det_length_double;
+G4double det_source_dis_double;
+
+
 
 int main(int argc, char** argv) //number of arguments including ./sim, argument array
 {    
@@ -61,8 +73,38 @@ int main(int argc, char** argv) //number of arguments including ./sim, argument 
           noOfEvents_int = stoi(noOfEvents_string);  //convert string to integer
        rad_source_string = argv[4];
                det_shape = argv[5];
-       detector_material = argv[6];
+ det_inner_radius_string = argv[6];
+ det_outer_radius_string = argv[7];
+   det_source_dis_string = argv[8];
+       det_length_string = argv[9];
+            units_string = argv[10];  
+       detector_material = argv[11];
      
+    if(units_string == "inch")
+    {
+      det_inner_radius_double = std::stod(det_inner_radius_string)*25.4*mm ;
+      det_outer_radius_double = std::stod(det_outer_radius_string)*25.4*mm ;
+            det_length_double = std::stod(det_length_string)*25.4*mm ;
+        det_source_dis_double = std::stod(det_source_dis_string)*25.4*mm ;
+      G4cout << "det_inner_radius_double inches: " << det_inner_radius_double << G4endl;
+      G4cout << "det_outer_radius_double inches: " << det_outer_radius_double << G4endl;
+      G4cout << "det_length_double inches: " << det_length_double << G4endl;
+      G4cout << "det_source_dis_double inches: " << det_source_dis_double << G4endl;
+    } 
+    else if(units_string == "cm")
+    {
+      det_inner_radius_double = std::stod(det_inner_radius_string)*cm ;
+      det_outer_radius_double = std::stod(det_outer_radius_string)*cm ;
+            det_length_double = std::stod(det_length_string)*cm ;
+        det_source_dis_double = std::stod(det_source_dis_string)*cm ;
+      G4cout << "det_inner_radius_double cm: " << det_inner_radius_double << G4endl;
+      G4cout << "det_outer_radius_double cm: " << det_outer_radius_double << G4endl;
+      G4cout << "det_length_double cm: " << det_length_double << G4endl;
+      G4cout << "det_source_dis_double cm: "   << det_source_dis_double << G4endl;
+    } 
+    
+
+
     G4UIExecutive* ui = 0;
 
     #ifdef G4MULTITHREADED
@@ -131,7 +173,9 @@ int main(int argc, char** argv) //number of arguments including ./sim, argument 
         UImanager->ApplyCommand("#/gps/ion 21 46");// #for Sc46 889 1120 2009
         UImanager->ApplyCommand("/gps/energy 0 keV");// #kinetic energy of ion
         UImanager->ApplyCommand("/gps/pos/type Point");
-        UImanager->ApplyCommand("/gps/pos/centre 0. 0. 0. cm"); 
+        G4String det_source_dis_command = "/gps/pos/centre 0. 0. " + to_string(-1.0*det_source_dis_double) + " mm";
+        //UImanager->ApplyCommand("/gps/pos/centre 0. 0. 0. mm"); 
+        UImanager->ApplyCommand(det_source_dis_command); 
         UImanager->ApplyCommand("/gps/ang/type iso");
         
      /*   
@@ -145,8 +189,8 @@ int main(int argc, char** argv) //number of arguments including ./sim, argument 
         }
        */ 
         G4String run_beam_on_command = "/run/beamOn ";
-  G4cout << "Now beam on" << G4endl;
-
+  G4cout << "Now beam on with total events: " << noOfEvents_int << G4endl;
+    
         UImanager->ApplyCommand(run_beam_on_command + noOfEvents_string );
 
 if (visualisation_flag == "vis_mode_on")

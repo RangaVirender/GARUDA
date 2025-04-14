@@ -36,9 +36,6 @@
 #include "G4NistManager.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4GenericMessenger.hh"
-#include "G4OpticalSurface.hh"
-#include "G4LogicalBorderSurface.hh"
-#include "G4LogicalSkinSurface.hh"
 
 #include "detector.hh"
 
@@ -62,7 +59,7 @@ private:
     G4LogicalVolume *logicWorld,  *logicDetector, *logicAl, *logicSteelChamber , *boxLogic, *box_det_logic, *cylinder_det_logic;
     G4VPhysicalVolume *physWorld, *physDetector, *physAl, *physSteelChamber, *box_det_phys, *cylinder_det_phys ;
 
-    G4OpticalSurface *mirrorSurface;
+    //G4OpticalSurface *mirrorSurface;
 
     G4Material  *worldMat, *NaI_mat , *LaBr3_mat, *CeBr3_mat, *AlMat, *steel, *HPGe_mat;
     G4Element  *Na, *I, *Al,*Fe, *Cr, *Ni, *La, *Br, *Ce, *Ge;

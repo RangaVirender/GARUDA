@@ -42,6 +42,7 @@ MyRunAction::MyRunAction()
     man->CreateNtupleDColumn("fdetHalfLengthZ");//column 2
     man->CreateNtupleDColumn("fdetDiameterCm");//column 3
     man->CreateNtupleDColumn("fparticleEnergy");//column 4
+    man->CreateNtupleSColumn("fradSource");//column 5
     man->FinishNtuple(1);
 
 
@@ -53,21 +54,32 @@ MyRunAction::~MyRunAction()
 void MyRunAction::BeginOfRunAction(const G4Run* run)
 {
     G4AnalysisManager *man = G4AnalysisManager::Instance();
+    // Set output file name with thread index
+    man->SetFileName("output.root");
 
-    G4int runID = run->GetRunID();
+    // Set compression consistently across threads
+    //auto* rootManager = dynamic_cast<G4RootAnalysisManager*>(man);
+    //if (rootManager) {
+      //  rootManager->SetCompressionLevel(4);  // ZLIB level 1 (default)
+        // SetCompressionAlgorithm() might not be available, so stick with default ZLIB
+    //}
 
-    std::stringstream strRunID, strNoOfEvents, strParticleEnergy, strDetDistance, strRootFileName;
-    strRunID << runID;
-    strNoOfEvents << noOfEvents_int; 
-    strParticleEnergy << particleEnergy;
-    strDetDistance << detDistance;
+    man->OpenFile();  // Creates output_t#.root per thread
+
+   // G4int runID = run->GetRunID();
+
+   // std::stringstream strRunID, strNoOfEvents, strParticleEnergy, strDetDistance, strRootFileName;
+   // strRunID << runID;
+   // strNoOfEvents << noOfEvents_int; 
+   // strParticleEnergy << particleEnergy;
+   // strDetDistance << detDistance;
   //  
 //    strRootFileName << "output" + strRunID.str() +"_" + strNoOfEvents.str()+"events_"+ strParticleEnergy.str()+"MeV_"
   //                              + strDetDistance.str()+"cm.root";
 
     //man->OpenFile("output"+strRunID.str()+"_"+strNoOfEvents.str()+"events_"+strParticleEnergy.str()+"MeV_"+strDetDistance.str()+"cm.root");
   //   man->OpenFile(strRootFileName.str());
-       man->OpenFile("output.root");
+    //   man->OpenFile("output.root");
 }
 
 void MyRunAction::EndOfRunAction(const G4Run*)
@@ -79,6 +91,7 @@ void MyRunAction::EndOfRunAction(const G4Run*)
     man->FillNtupleDColumn(1, 2, detHalfLengthZ);
     man->FillNtupleDColumn(1, 3, detDiameterCm);
     man->FillNtupleDColumn(1, 4, particleEnergy);
+    man->FillNtupleSColumn(1, 5, rad_source_string);
     man->AddNtupleRow(1);
     
     man->Write();

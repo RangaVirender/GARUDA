@@ -32,6 +32,7 @@
 #include "G4Run.hh"
 
 #include "G4AnalysisManager.hh"
+#include "G4RootAnalysisManager.hh"
 
 
 class MyRunAction : public G4UserRunAction

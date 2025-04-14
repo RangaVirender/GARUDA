@@ -40,9 +40,9 @@ MyDetectorConstruction::MyDetectorConstruction()
 {
     DefineMaterials();
 
-    xWorld = 1.0*m;
-    yWorld = 1.0*m;
-    zWorld = 1.0*m;
+    xWorld = det_outer_radius_double + det_length_double + det_source_dis_double + 50*cm;
+    yWorld = xWorld;
+    zWorld = xWorld;
 }
 
 MyDetectorConstruction::~MyDetectorConstruction()
@@ -139,25 +139,26 @@ G4VPhysicalVolume *MyDetectorConstruction::Construct()
 
     detPositionZ =  AlPositionZ + AlThickness/2.0 + AlGap + detHalfLengthZ ;
 
-
+    
     if(det_shape == "box")
     {   
-        box_det_solid = new G4Box("box_det_solid", 10 * cm, 10 * cm, 10 * cm);
+        box_det_solid = new G4Box("box_det_solid", det_inner_radius_double*0.5, det_outer_radius_double*0.5, det_length_double*0.5);
         box_det_logic = MyDetectorConstruction::CreateLogicalVolume(box_det_solid, detector_material, "box_det_logic");
-        box_det_phys  = new G4PVPlacement(0, G4ThreeVector(0.*m, 0.*m, detPositionZ*cm), box_det_logic, "box_det_phys", logicWorld, false, 0, true);
+        box_det_phys  = new G4PVPlacement(0, G4ThreeVector(0.*m, 0.*m, 0.*m), box_det_logic, "box_det_phys", logicWorld, false, 0, true);
 
+        fScoringVolume = box_det_logic;
     }
     else if (det_shape == "cylinder")
     {
-        cylinder_det_solid = new G4Tubs("cylinder_det_solid", 0*cm, 10*cm, 10*cm, 0., 2.0*M_PI);
+        cylinder_det_solid = new G4Tubs("cylinder_det_solid", det_inner_radius_double, det_outer_radius_double, det_length_double*0.5, 0., 2.0*M_PI);
         cylinder_det_logic = MyDetectorConstruction::CreateLogicalVolume(cylinder_det_solid, detector_material, "cylinder_det_logic");
-        cylinder_det_phys  = new G4PVPlacement(0, G4ThreeVector(0.*m, 0.*m, detPositionZ*cm), cylinder_det_logic, "cylinder_det_phys", logicWorld, false, 0, true);
+        cylinder_det_phys  = new G4PVPlacement(0, G4ThreeVector(0.*m, 0.*m, 0.*m), cylinder_det_logic, "cylinder_det_phys", logicWorld, false, 0, true);
     
+        fScoringVolume = cylinder_det_logic;
     }
     //logicDetector = new G4LogicalVolume(solidDetector, LaBr3, "logicDetector");
     
 
-    fScoringVolume = cylinder_det_logic;
     
 
    // physDetector = new G4PVPlacement(0, G4ThreeVector(0.*m, 0.*m, detPositionZ*cm), boxLogic, "physDetector", logicWorld, false, 0, true);
@@ -173,7 +174,7 @@ G4VPhysicalVolume *MyDetectorConstruction::Construct()
 
     logicAl = new G4LogicalVolume(solidAl, AlMat, "logicAl");
 
-    physAl = new G4PVPlacement(0, G4ThreeVector(0.*m, 0.*m, 5.0*cm ), logicAl, "physAl", logicWorld, false, 0, true);
+    physAl = new G4PVPlacement(0, G4ThreeVector(0.*m, 0.*m, -3.0*cm ), logicAl, "physAl", logicWorld, false, 0, true);
      
    //Steel chamber wall
 

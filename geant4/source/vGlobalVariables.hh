@@ -21,4 +21,9 @@ extern std::time_t startTime;
 extern std::time_t endTime;
 extern G4String detector_material;
 extern G4String det_shape;
+extern G4String rad_source_string;
+extern G4double det_inner_radius_double;
+extern G4double det_outer_radius_double;
+extern G4double det_length_double;
+extern G4double det_source_dis_double;
 #endif

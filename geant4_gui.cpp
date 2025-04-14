@@ -15,10 +15,7 @@ class MyMainFrame : public TGMainFrame
     
     TGComboBox    *select_det_shape_cbox; // List for selecting detector material
     TGLabel       *select_det_shape_label;
-    
-    TGComboBox    *select_units_cbox; // List for selecting detector material
-    TGLabel       *select_units_label;
-    
+     
     TGNumberEntry *no_of_events_entry;
     TGLabel       *no_of_events_label;
 
@@ -33,6 +30,12 @@ class MyMainFrame : public TGMainFrame
     
     TGNumberEntry *det_length_entry;
     TGLabel       *det_length_label;
+    
+    TGNumberEntry *al_thickness_entry;
+    TGLabel       *al_thickness_label;
+    
+    TGNumberEntry *al_gap_entry;
+    TGLabel       *al_gap_label;
 
     TGNumberEntry *det_source_dis_entry;
     TGLabel       *det_source_dis_label;
@@ -62,9 +65,15 @@ class MyMainFrame : public TGMainFrame
     TString        det_shape_string;
     TString        det_inner_radius_string;
     TString        det_outer_radius_string;
+    
+    TString        al_thickness_string;
+    double         al_thickness_double;
+    TString        al_gap_string;
+    double         al_gap_double;
+    
     TString        det_length_string;
     TString        det_source_dis_string;
-    TString        units_string;
+   
     TString        rad_source_string;
     int            rad_source_int;
     int            det_mat_int;
@@ -75,7 +84,7 @@ class MyMainFrame : public TGMainFrame
     TString        no_of_threads_string;
     int            no_of_threads_int;
     int            no_of_cores_int;
-    int            units_int;
+    
     TString        no_of_cores_string;
     double         det_inner_radius_double;
     double         det_outer_radius_double;
@@ -176,28 +185,29 @@ MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h) : TGMainFrame(p,
 
     select_det_shape_cbox->Resize(100, 25); // Resize the text entry field
    
-    det_inner_radius_label = new TGLabel(det_frame, "Detector inner radius");
+    det_inner_radius_label = new TGLabel(det_frame, "Detector inner radius(cm)");
     det_inner_radius_entry = new TGNumberEntry(det_frame, 0, 5, -1, TGNumberFormat::kNESReal);//default value, max digits, ID 
     det_inner_radius_entry->SetLimits(TGNumberFormat::kNELLimitMinMax, 0.0, 1e5);
     
-    det_outer_radius_label = new TGLabel(det_frame, "Detector outer radius");
+    det_outer_radius_label = new TGLabel(det_frame, "Detector outer radius(cm)");
     det_outer_radius_entry = new TGNumberEntry(det_frame, 1, 5, -1, TGNumberFormat::kNESReal);//default value, max digits, ID 
     det_outer_radius_entry->SetLimits(TGNumberFormat::kNELLimitMinMax, 0.0, 1e5);
     
-    det_length_label = new TGLabel(det_frame, "Detector length");
+    det_length_label = new TGLabel(det_frame, "Detector length(cm)");
     det_length_entry = new TGNumberEntry(det_frame, 1, 5, -1, TGNumberFormat::kNESReal);//default value, max digits, ID 
     det_length_entry->SetLimits(TGNumberFormat::kNELLimitMinMax, 0.0, 1e5);
+    
+    al_thickness_label = new TGLabel(det_frame, "Aluminium Thickness(mm)");
+    al_thickness_entry = new TGNumberEntry(det_frame, 1, 5, -1, TGNumberFormat::kNESReal);//default value, max digits, ID 
+    al_thickness_entry->SetLimits(TGNumberFormat::kNELLimitMinMax, 0.0, 1e5);
+    
+    al_gap_label = new TGLabel(det_frame, "Aluminium-Crystal gap(mm)");
+    al_gap_entry = new TGNumberEntry(det_frame, 1, 5, -1, TGNumberFormat::kNESReal);//default value, max digits, ID 
+    al_gap_entry->SetLimits(TGNumberFormat::kNELLimitMinMax, 0.0, 1e5);
     
     det_source_dis_label = new TGLabel(det_frame, "Detector source distance");
     det_source_dis_entry = new TGNumberEntry(det_frame, 1, 5, -1, TGNumberFormat::kNESReal);//default value, max digits, ID 
     det_source_dis_entry->SetLimits(TGNumberFormat::kNELLimitMinMax, 0.0, 1e5);
-    
-    select_units_label = new TGLabel(grid_frame_2, "Units");
-    select_units_cbox = new TGComboBox(grid_frame_2, -1);
-    select_units_cbox->AddEntry("inch", 1);
-    select_units_cbox->AddEntry("cm",   2);
-    select_units_cbox->Select(1);
-    select_units_cbox->Resize(100, 25); // Resize the text entry field
     
     select_det_mat_label = new TGLabel(det_frame, "Detector material");
     select_det_mat_cbox = new TGComboBox(det_frame, -1);//"Select Detector Material");
@@ -239,12 +249,15 @@ MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h) : TGMainFrame(p,
     det_frame->AddFrame(det_inner_radius_entry, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 0));
     det_frame->AddFrame(det_outer_radius_label, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 0));
     det_frame->AddFrame(det_outer_radius_entry, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 0));
+    
+    det_frame->AddFrame(al_thickness_label, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 0));
+    det_frame->AddFrame(al_thickness_entry, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 0));
+    det_frame->AddFrame(al_gap_label, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 0));
+    det_frame->AddFrame(al_gap_entry, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 0));
+    
     det_frame->AddFrame(det_source_dis_label, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 0));
     det_frame->AddFrame(det_source_dis_entry, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 0));
-    
-    grid_frame_2->AddFrame(select_units_label, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 0));
-    grid_frame_2->AddFrame(select_units_cbox, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 0));
-    
+     
     det_frame->AddFrame(select_det_mat_label, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 0));
     det_frame->AddFrame(select_det_mat_cbox, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 0));
     
@@ -381,14 +394,14 @@ void MyMainFrame::det_shape_selected(Int_t selected_item_id)
     switch(selected_item_id)
     {
     case 1: std::cout << "Det shape cylinder" << std::endl;
-            det_length_label->SetText("Detector length");
-            det_inner_radius_label->SetText("Detector inner radius");
-            det_outer_radius_label->SetText("Detector outer radius");
+            det_length_label->SetText("Detector length(cm)");
+            det_inner_radius_label->SetText("Detector inner radius(cm)");
+            det_outer_radius_label->SetText("Detector outer radius(cm)");
             break;
     case 2: std::cout << "Det shape box" << std::endl;
-            det_length_label->SetText("Detector Length");
-            det_inner_radius_label->SetText("Detector Breadth");
-            det_outer_radius_label->SetText("Detector Height");
+            det_length_label->SetText("Detector length(cm)");
+            det_inner_radius_label->SetText("Detector breadth(cm)");
+            det_outer_radius_label->SetText("Detector height(cm)");
             det_inner_radius_entry->SetNumber(1);
             break;
     }
@@ -539,13 +552,6 @@ void MyMainFrame::run_sim_button_clicked()
    std::cout << "Det shape int: " << det_shape_int << std::endl;
   
    
-   units_int = select_units_cbox->GetSelected();
-   switch(units_int)
-   {
-   case 1: std::cout<<"case 1: inch "<<std::endl; units_string = " inch " ; break;
-   case 2: std::cout<<"case 2: cm "    <<std::endl; units_string = " cm " ; break;
-   }
-  
    det_inner_radius_double = det_inner_radius_entry->GetNumber();
    det_inner_radius_string = to_string(det_inner_radius_double);
    
@@ -555,6 +561,12 @@ void MyMainFrame::run_sim_button_clicked()
    det_length_double = det_length_entry->GetNumber();
    det_length_string = to_string(det_length_double);
    
+   al_thickness_double = al_thickness_entry->GetNumber();
+   al_thickness_string = to_string(al_thickness_double);
+   
+   al_gap_double = al_gap_entry->GetNumber();
+   al_gap_string = to_string(al_gap_double);
+
    det_source_dis_double = det_source_dis_entry->GetNumber();
    det_source_dis_string = to_string(det_source_dis_double);
    
@@ -595,7 +607,8 @@ void MyMainFrame::run_sim_button_clicked()
                          + det_outer_radius_string + " "
                          + det_source_dis_string + " "
                          + det_length_string + " "
-                         + units_string
+                         + al_thickness_string + " "
+                         + al_gap_string + " "
                          + det_mat_string
                          //+ " 2>&1 >> ../../log.txt
                          + " ' ";

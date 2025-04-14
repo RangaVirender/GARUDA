@@ -156,44 +156,16 @@ G4VPhysicalVolume *MyDetectorConstruction::Construct()
     
         fScoringVolume = cylinder_det_logic;
     }
-    //logicDetector = new G4LogicalVolume(solidDetector, LaBr3, "logicDetector");
-    
 
-    
-
-   // physDetector = new G4PVPlacement(0, G4ThreeVector(0.*m, 0.*m, detPositionZ*cm), boxLogic, "physDetector", logicWorld, false, 0, true);
-
-    //create Aluminium surface
-    G4double AlInnerRadius = detInnerRadius; // Inner radius
-    G4double AlOuterRadius = detOuterRadius; // Outer radius in inches
-    G4double AlHalfLengthZ = AlThickness*0.5; // cm // Half-length along Z-axis
-    G4double AlStartPhi = 0.; // Starting angle (in radians)
-    G4double AlDeltaPhi = 2. * M_PI; // Delta angle (full circle)
-
-    solidAl = new G4Tubs("solidAl", AlInnerRadius*cm, AlOuterRadius*cm, AlHalfLengthZ*cm, AlStartPhi, AlDeltaPhi );
-
+    G4double al_inner_radius = 0.0*mm;
+    G4double al_outer_radius = det_outer_radius_double + al_gap_double;//mm
+    G4double al_half_thickness_double = al_thickness_double*0.5;//mm
+    G4cout << al_inner_radius <<"\t" <<al_outer_radius <<"\t" <<al_half_thickness_double << G4endl;
+    solidAl = new G4Tubs("solidAl", al_inner_radius, al_outer_radius, al_half_thickness_double, 0.0, 2.0*M_PI );
     logicAl = new G4LogicalVolume(solidAl, AlMat, "logicAl");
-
-    physAl = new G4PVPlacement(0, G4ThreeVector(0.*m, 0.*m, -3.0*cm ), logicAl, "physAl", logicWorld, false, 0, true);
+    physAl = new G4PVPlacement(0, G4ThreeVector(0.*m, 0.*m, -1.0*(det_length_double*0.5 + al_gap_double + al_half_thickness_double) ), logicAl, "physAl", logicWorld, false, 0, true);
      
-   //Steel chamber wall
-
-    G4double steelChamberInnerRadius = 0.0; // Inner radius
-    G4double steelChamberOuterRadius = 10.0; // Outer radius in cm
-    G4double steelChamberHalfLengthZ = 0.3/2.0; // cm // Half-length along Z-axis
-    G4double steelChamberStartPhi = 0.; // Starting angle (in radians)
-    G4double steelChamberDeltaPhi = 2.0*M_PI; // Delta angle (full circle)
-    G4double steelChamberPositionZ = 2.5 ; //cm
-   // solidSteelChamber = new G4Tubs("solidSteelChamber", steelChamberInnerRadius*cm, steelChamberOuterRadius*cm,
-     //                               steelChamberHalfLengthZ*cm, steelChamberStartPhi, steelChamberDeltaPhi );
-
-   // logicSteelChamber = new G4LogicalVolume(solidSteelChamber, steel, "logicSteelChamber");
-
-   // physSteelChamber = new G4PVPlacement(0, G4ThreeVector(0.*m, 0.*m, steelChamberPositionZ*cm ), logicSteelChamber,
-              //                            "physSteelChamber", logicWorld, false, 0, true);
-     
-    detDiameterCm = detDiameter*2.54;
-    G4double solidAngle = 2.0*M_PI*( 1.0 - detDistance/sqrt(pow(detDistance,2.0) + pow(detDiameterCm/2.0,2.0))) ;
+   // G4double solidAngle = 2.0*M_PI*( 1.0 - detDistance/sqrt(pow(detDistance,2.0) + pow(detDiameterCm/2.0,2.0))) ;
 
     return physWorld;
 }

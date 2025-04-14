@@ -49,16 +49,19 @@ G4String solid_volume;
 G4String no_of_threads_string;
 G4String rad_source_string;
 G4String det_length_string;
+G4String al_thickness_string;
+G4String al_gap_string;
 
 G4String det_inner_radius_string;
 G4String det_outer_radius_string;
 G4String det_source_dis_string;
-G4String units_string;
+
 G4double det_inner_radius_double;
 G4double det_outer_radius_double;
 G4double det_length_double;
 G4double det_source_dis_double;
-
+G4double al_thickness_double;
+G4double al_gap_double;
 
 
 int main(int argc, char** argv) //number of arguments including ./sim, argument array
@@ -77,32 +80,18 @@ int main(int argc, char** argv) //number of arguments including ./sim, argument 
  det_outer_radius_string = argv[7];
    det_source_dis_string = argv[8];
        det_length_string = argv[9];
-            units_string = argv[10];  
-       detector_material = argv[11];
+     al_thickness_string = argv[10];  
+           al_gap_string = argv[11];  
+       detector_material = argv[12];
      
-    if(units_string == "inch")
-    {
-      det_inner_radius_double = std::stod(det_inner_radius_string)*25.4*mm ;
-      det_outer_radius_double = std::stod(det_outer_radius_string)*25.4*mm ;
-            det_length_double = std::stod(det_length_string)*25.4*mm ;
-        det_source_dis_double = std::stod(det_source_dis_string)*25.4*mm ;
-      G4cout << "det_inner_radius_double inches: " << det_inner_radius_double << G4endl;
-      G4cout << "det_outer_radius_double inches: " << det_outer_radius_double << G4endl;
-      G4cout << "det_length_double inches: " << det_length_double << G4endl;
-      G4cout << "det_source_dis_double inches: " << det_source_dis_double << G4endl;
-    } 
-    else if(units_string == "cm")
-    {
-      det_inner_radius_double = std::stod(det_inner_radius_string)*cm ;
+     //converts every number to mm
+      det_inner_radius_double = std::stod(det_inner_radius_string)*cm ; // cm means the number is entered in cm, it is *10 to convert to mm
       det_outer_radius_double = std::stod(det_outer_radius_string)*cm ;
             det_length_double = std::stod(det_length_string)*cm ;
+          al_thickness_double = std::stod(al_thickness_string)*mm ; // mm means number is laready in mm, so no conversion mm=1
+                al_gap_double = std::stod(al_gap_string)*mm ;
         det_source_dis_double = std::stod(det_source_dis_string)*cm ;
-      G4cout << "det_inner_radius_double cm: " << det_inner_radius_double << G4endl;
-      G4cout << "det_outer_radius_double cm: " << det_outer_radius_double << G4endl;
-      G4cout << "det_length_double cm: " << det_length_double << G4endl;
-      G4cout << "det_source_dis_double cm: "   << det_source_dis_double << G4endl;
-    } 
-    
+      
 
 
     G4UIExecutive* ui = 0;

@@ -26,4 +26,8 @@ extern G4double det_inner_radius_double;
 extern G4double det_outer_radius_double;
 extern G4double det_length_double;
 extern G4double det_source_dis_double;
+extern G4String al_thickness_string;
+extern G4String al_gap_string;
+extern G4double al_thickness_double;
+extern G4double al_gap_double;
 #endif

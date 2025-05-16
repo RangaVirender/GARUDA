@@ -7,9 +7,17 @@ class MyMainFrame : public TGMainFrame
     TGRadioButton *vis_mode_ON_button;
     TGRadioButton *vis_mode_OFF_button;
     
+    TGButtonGroup *al_cover_button_group;
+    TGRadioButton *al_cover_ON_button;
+    TGRadioButton *al_cover_OFF_button;
+    
+    TGComboBox    *select_rad_nuclei_cbox; // List for selecting detector material
     TGComboBox    *select_rad_source_cbox; // List for selecting detector material
     TGLabel       *select_rad_source_label;
-    
+
+    TGNumberEntry *gamma_energy_entry;
+    TGLabel       *gamma_energy_label;
+
     TGComboBox    *select_det_mat_cbox; // List for selecting detector material
     TGLabel       *select_det_mat_label;
     
@@ -44,13 +52,16 @@ class MyMainFrame : public TGMainFrame
     TGTextButton  *cmake_button; // Button for cmake
     TGTextButton  *make_button; // Button for make
     TGTextButton  *run_sim_button; // Button for running simulation
-    TGTextButton  *stop_sim_button; // Button for running simulation
+    
     TGTextButton  *plot_spec_button; // Button for running simulation
     TGTextButton  *cal_eff_button; // Button for running simulation
+    
     TGTextButton  *exit_button;  // Button for exiting the application
     TGTextButton  *load_log_button;  // Button for loading log.txt
     TGTextButton  *load_instrxn_button;  // Button for loading instruction.txt
+    
     TGTextView    *text_output;    // Text output field
+    
     TGGroupFrame  *global_frame;
     
     TGGroupFrame  *det_frame;
@@ -59,13 +70,15 @@ class MyMainFrame : public TGMainFrame
     TGGroupFrame  *grid_frame_2; //grid 2 
     TGGroupFrame  *grid_frame_3; //grid 3 
     TGGroupFrame  *grid_frame_4; //grid 3 
-    TString        source_file_path;
+    
     TString        vis_mode_string;
+    
     TString        det_mat_string;
     TString        det_shape_string;
     TString        det_inner_radius_string;
     TString        det_outer_radius_string;
     
+    TString        al_cover_status_string;
     TString        al_thickness_string;
     double         al_thickness_double;
     TString        al_gap_string;
@@ -100,6 +113,7 @@ class MyMainFrame : public TGMainFrame
     virtual ~MyMainFrame();
     void source_sh_file_button_clicked(); // Action for "Click Me" button
     void check_geant4_button_clicked(); // Action for "Click Me" button
+    void al_cover_button_clicked(); // Action for "Click Me" button
     void clear_build_button_clicked(); // Action for "Click Me" button
     void cmake_button_clicked(); // Action for "Click Me" button
     void make_button_clicked(); // Action for "Click Me" button
@@ -109,6 +123,7 @@ class MyMainFrame : public TGMainFrame
     void cal_eff_button_clicked(); // Action for "Click Me" button
     void exit_button_clicked();  // Action for "Exit" button
     void det_shape_selected(Int_t);
+    void rad_source_selected(Int_t);
     void load_instrxn_button_clicked();
     void load_log_button_clicked();
     void LoadFile(const char *filename);  // Function to load file into TGTextView
@@ -170,13 +185,23 @@ MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h) : TGMainFrame(p,
 
     select_rad_source_label = new TGLabel(grid_frame_2, "Radiation source");
     select_rad_source_cbox = new TGComboBox(grid_frame_2, -1);
-    select_rad_source_cbox->AddEntry("Cs137", 1);
-    select_rad_source_cbox->AddEntry("Co60", 2);
-    select_rad_source_cbox->AddEntry("Na22", 3);
-    select_rad_source_cbox->AddEntry("Ba133", 4);
-    select_rad_source_cbox->Select(1);
+    select_rad_source_cbox->AddEntry("Radioactive nuclei", 1);
+    select_rad_source_cbox->AddEntry("Gamma", 2);
+    select_rad_source_cbox->Connect("Selected(Int_t)", "MyMainFrame", this, "rad_source_selected(Int_t)");
     select_rad_source_cbox->Resize(100, 25); // Resize the text entry field
 
+    select_rad_nuclei_cbox = new TGComboBox(grid_frame_2, -1);
+    select_rad_nuclei_cbox->AddEntry("Cs137", 1);
+    select_rad_nuclei_cbox->AddEntry("Co60", 2);
+    select_rad_nuclei_cbox->AddEntry("Na22", 3);
+    select_rad_nuclei_cbox->AddEntry("Ba133", 4);
+    select_rad_nuclei_cbox->Select(1);
+    select_rad_nuclei_cbox->Resize(100, 25); // Resize the text entry field
+
+    gamma_energy_label = new TGLabel(grid_frame_2, "Gamma-ray energy(keV)");
+    gamma_energy_entry = new TGNumberEntry(grid_frame_2, 662, 5, -1, TGNumberFormat::kNESReal);//default value, max digits, ID 
+    gamma_energy_entry->SetLimits(TGNumberFormat::kNELLimitMinMax, 0.0, 1e5);
+    
     select_det_shape_label = new TGLabel(det_frame, "Detector shape");
     select_det_shape_cbox = new TGComboBox(det_frame, -1);
     select_det_shape_cbox->AddEntry("Cylinder", 1);
@@ -197,6 +222,17 @@ MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h) : TGMainFrame(p,
     det_length_entry = new TGNumberEntry(det_frame, 1, 5, -1, TGNumberFormat::kNESReal);//default value, max digits, ID 
     det_length_entry->SetLimits(TGNumberFormat::kNELLimitMinMax, 0.0, 1e5);
     
+    // Create a button group
+    al_cover_button_group = new TGButtonGroup(det_frame, "Aluminium casing");
+    // Add radio buttons to the group
+    al_cover_ON_button  = new TGRadioButton(al_cover_button_group, "ON");
+    al_cover_OFF_button = new TGRadioButton(al_cover_button_group, "OFF");
+    al_cover_ON_button->SetState(kButtonDown); // Marks it as selected
+    al_cover_status_string = "al_cover_ON";
+
+    al_cover_ON_button->Connect("Clicked()", "MyMainFrame", this, "al_cover_button_clicked()"); // Connect to click handler
+    al_cover_OFF_button->Connect("Clicked()", "MyMainFrame", this, "al_cover_button_clicked()"); // Connect to click handler
+
     al_thickness_label = new TGLabel(det_frame, "Aluminium Thickness(mm)");
     al_thickness_entry = new TGNumberEntry(det_frame, 1, 5, -1, TGNumberFormat::kNESReal);//default value, max digits, ID 
     al_thickness_entry->SetLimits(TGNumberFormat::kNELLimitMinMax, 0.0, 1e5);
@@ -219,12 +255,12 @@ MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h) : TGMainFrame(p,
     select_det_mat_cbox->Select(2);
     select_det_mat_cbox->Resize(100, 25); // Resize the text entry field
 
-    no_of_threads_label = new TGLabel(grid_frame_2, "CPU threads");
+    no_of_threads_label = new TGLabel(grid_frame_2, "CPU Cores");
     no_of_threads_entry = new TGNumberEntry(grid_frame_2, 4, 2, -1, TGNumberFormat::kNESInteger);//default value, max digits, ID 
     // no_of_events_entry->SetText("10"); // Set default text
     
     no_of_cores_string = gSystem->GetFromPipe("grep '^core id' /proc/cpuinfo | sort -u | wc -l");
-    cout << "No of cores in CPU: " << no_of_cores_string << endl;
+    //cout << "No of cores in CPU: " << no_of_cores_string << endl;
     no_of_cores_int = no_of_cores_string.Atoi();
     no_of_threads_entry->SetLimits(TGNumberFormat::kNELLimitMinMax, 1, no_of_cores_int);
    
@@ -240,7 +276,13 @@ MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h) : TGMainFrame(p,
     grid_frame_2->AddFrame(no_of_events_entry, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 0));
     grid_frame_2->AddFrame(select_rad_source_label, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 0));
     grid_frame_2->AddFrame(select_rad_source_cbox, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 0));
+    grid_frame_2->AddFrame(select_rad_nuclei_cbox, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 0));
     
+    grid_frame_2->AddFrame(gamma_energy_label, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 0));
+    grid_frame_2->AddFrame(gamma_energy_entry, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 0));
+    /////////////////////////////
+    select_rad_source_cbox->Select(1);
+    //////////////////////////////////
     det_frame->AddFrame(select_det_shape_label, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 0));
     det_frame->AddFrame(select_det_shape_cbox, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 0));
     det_frame->AddFrame(det_length_label, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 0));
@@ -250,6 +292,7 @@ MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h) : TGMainFrame(p,
     det_frame->AddFrame(det_outer_radius_label, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 0));
     det_frame->AddFrame(det_outer_radius_entry, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 0));
     
+    det_frame->AddFrame(al_cover_button_group, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 0));
     det_frame->AddFrame(al_thickness_label, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 0));
     det_frame->AddFrame(al_thickness_entry, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 0));
     det_frame->AddFrame(al_gap_label, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 0));
@@ -338,7 +381,6 @@ MyMainFrame::~MyMainFrame() {
     RemoveFrame(cmake_button);          delete cmake_button;
     RemoveFrame(make_button);           delete make_button;
     RemoveFrame(run_sim_button);        delete run_sim_button;
-    RemoveFrame(stop_sim_button);       delete stop_sim_button;
     RemoveFrame(exit_button);           delete exit_button;
     RemoveFrame(load_instrxn_button);   delete load_instrxn_button;
     RemoveFrame(load_log_button);       delete load_log_button;
@@ -354,51 +396,34 @@ void MyMainFrame::update_text_output()
     gSystem->ProcessEvents(); // Process pending UI events
 }
 
-
-// Function to load a file into TGTextView
-void MyMainFrame::LoadFile(const char *filename)
+void MyMainFrame::rad_source_selected(Int_t selected_item_id)
 {
-    text_output->Clear();
-    std::ifstream file(filename);
-    if (!file) 
+    switch(selected_item_id)
     {
-       text_output->AddLine("Error: Unable to open file!");
-       return;
+    case 1: //radioactive nuclei selected
+            select_rad_nuclei_cbox->SetEnabled(kTRUE);
+            gamma_energy_entry->SetState(kFALSE);
+            break;
+    case 2: //gamma
+            select_rad_nuclei_cbox->SetEnabled(kFALSE);
+            gamma_energy_entry->SetState(kTRUE);
+            break;
     }
-
-    std::string line;
-    while (std::getline(file, line)) 
-    {
-       text_output->AddLine(line.c_str());
-    }
-    file.close();
+    return;
 }
 
-
-void MyMainFrame::load_instrxn_button_clicked()
-{   
-    TString instrxn_file_path = pwd_path+"/instructions.txt"; 
-    LoadFile(instrxn_file_path);
-}
-
-void MyMainFrame:: load_log_button_clicked()
-{
-    TString log_file_path = pwd_path+"/log.txt"; 
-    LoadFile(log_file_path);
-    text_output->ShowBottom(); // Scroll to the last line
-}
 
 void MyMainFrame::det_shape_selected(Int_t selected_item_id)
 {
     //int det_shape_int = select_det_shape_cbox->GetSelected();
     switch(selected_item_id)
     {
-    case 1: std::cout << "Det shape cylinder" << std::endl;
+    case 1: //cout << "Det shape cylinder" << endl;
             det_length_label->SetText("Detector length(cm)");
             det_inner_radius_label->SetText("Detector inner radius(cm)");
             det_outer_radius_label->SetText("Detector outer radius(cm)");
             break;
-    case 2: std::cout << "Det shape box" << std::endl;
+    case 2: //cout << "Det shape box" << endl;
             det_length_label->SetText("Detector length(cm)");
             det_inner_radius_label->SetText("Detector breadth(cm)");
             det_outer_radius_label->SetText("Detector height(cm)");
@@ -410,61 +435,67 @@ void MyMainFrame::det_shape_selected(Int_t selected_item_id)
 
 void MyMainFrame::check_geant4_button_clicked()
 {   
-   
-    text_output->AddLine("Finding Geant4..."); update_text_output();
-    TString geant4_config_command_1 = "geant4-config --version  > log.txt 2>&1";
-    int geant4_status = gSystem->Exec(geant4_config_command_1);
+    TString geant4_version = gSystem->GetFromPipe("geant4-config --version");
     
-    if(geant4_status != 0)
+    if(geant4_version == "")
      {
-       text_output->AddLine("Cannot find Geant4. Please source geant4.sh"); update_text_output();
-        return;
+       cout << "\033[31m"<<"Cannot find Geant4. Please source geant4.sh before running geant4_gui."<<"\033[0m"<< endl;
+       return;         //red
      }
      else 
      {
-        TString geant4_config_command_2 = "geant4-config --version";   
-        TString geant4_version = gSystem->GetFromPipe(geant4_config_command_2);
-        TString print_geant4_version_command = "Found Geant4 version " + geant4_version + " Click on Run CMAKE to proceed.";
-        text_output->AddLine(print_geant4_version_command); update_text_output();
-     }    
+        cout << "\033[32m"<<"Found Geant4 version " << geant4_version << " Click on Run CMAKE to proceed."<<"\033[0m" << endl;
+     }                //green
+     return;
+}
+
+void MyMainFrame::al_cover_button_clicked()
+{
+   if (al_cover_ON_button->GetState() == kButtonDown)
+       { 
+         al_cover_status_string = "al_cover_ON";
+         al_thickness_entry->SetState(kTRUE); // Enable
+         al_gap_entry->SetState(kTRUE);
+        }    
+    else if (al_cover_OFF_button->GetState() == kButtonDown)
+        {
+          al_cover_status_string = "al_cover_OFF";
+          al_thickness_entry->SetState(kFALSE); // Disable
+          al_gap_entry->SetState(kFALSE);
+        } 
 }
 
 void MyMainFrame::clear_build_button_clicked()
 {             
-    text_output->AddLine("Clearing contents of the build folder for a clean start."); update_text_output();
+    //text_output->AddLine("Clearing contents of the build folder for a clean start."); update_text_output();
     
-    TString clear_build_command = "bash -c 'cd "+pwd_path+"/geant4/build && rm -rf * >> ../../log.txt 2>&1'";   
+    //TString clear_build_command = "bash -c 'cd "+pwd_path+"/geant4/build && rm -rf * >> ../../log.txt 2>&1'";   
+   // TString clear_build_command = "cd "+pwd_path+"/geant4/build && rm -rf *";   
+    TString clear_build_command = "cd geant4/build && rm -rf *";   
     
-    int clear_build_status = gSystem->Exec(clear_build_command);// > to rewrite log file
-    if(clear_build_status != 0)
-     {
-       text_output->AddLine("Error: Clear failed. Build folder may be already empty. Check log.txt. Run CMAKE"); update_text_output();
-       return;
-     }
-     else 
-     {
-       text_output->AddLine("Build folder cleared successfully. Click on Run CMAKE to proceed."); update_text_output();
-     }     
+    gSystem->GetFromPipe(clear_build_command);// > to rewrite log file
+    cout << "\033[32m" << "Build folder cleared successfully. Click on Run CMAKE to proceed." << "\033[0m"  << endl;
+        
 }
 
 void MyMainFrame::cmake_button_clicked()
 {             
-    label->SetText("Working...");
+    //label->SetText("Working...");
 
-    text_output->AddLine("Running CMAKE..."); update_text_output();
+    cout << "\033[33m" << "Running CMAKE..." << "\033[0m" << endl;
     
-    TString cmake_command = "bash -c 'cd "+pwd_path+"/geant4/build && cmake ../source'";   
+    TString cmake_command = "cd geant4/build && cmake ../source";   
     
-    int cmake_status = gSystem->Exec(cmake_command);// > to rewrite log file
-    if(cmake_status != 0)
+    int cmake_status_int = gSystem->Exec(cmake_command);
+    if(cmake_status_int != 0)
      {
-       text_output->AddLine("Error: CMAKE failed. Check log.txt"); update_text_output();
+       cout << "\033[31m" << "Error: CMAKE failed." << "\033[0m" << endl;
        label->SetText("");
         return;
      }
      else 
      {
-       text_output->AddLine("CMAKE completed successfully. Click on Run MAKE to proceed."); update_text_output();
+       cout << "\033[32m" << "CMAKE completed successfully. Click on Run MAKE to proceed." << "\033[0m" << endl;
      }
     label->SetText("");
     
@@ -478,9 +509,13 @@ void MyMainFrame::cmake_button_clicked()
 void MyMainFrame::make_button_clicked()
 {  
     label->SetText("Working...");
-   text_output->AddLine("Running MAKE using 4 cores..."); update_text_output();
     
-    TString make_command = "bash -c 'cd "+pwd_path+"/geant4/build && make -j4'";   
+    int no_of_threads_int = no_of_threads_entry->GetNumber();
+    no_of_threads_string = to_string(no_of_threads_int);
+    
+    cout << "\033[33m" << "Running MAKE using " << no_of_threads_int << " cores..." << "\033[0m" << endl;
+    
+    TString make_command = "cd geant4/build && make -j"+no_of_events_string;   
     
     int make_status = gSystem->Exec(make_command);// >> append to log file
     if(make_status != 0)
@@ -502,54 +537,57 @@ void MyMainFrame::run_sim_button_clicked()
   //  make_button->SetEnabled(kFALSE);
   // cmake_button->SetEnabled(kFALSE);
    
-   gSystem->Exec("bash -c 'cd "+pwd_path+"/geant4/build && rm -rf *.root '");
+   gSystem->Exec("cd geant4/build && rm -rf *.root");
 
    label->SetText("Working...");
-   text_output->AddLine("Started..."); update_text_output();
    
    no_of_events_int = no_of_events_entry->GetNumber();
    no_of_events_string = to_string(no_of_events_int);
-   TString print_no_of_events_command = "No of events: " + no_of_events_string;
-   text_output->AddLine(print_no_of_events_command); update_text_output();
-   
+   cout << "No of events: " << no_of_events_int << endl;
 
    if(no_of_events_int > 100)
    {
-        std::cout << "No of events " << no_of_events_int << " is more than 100" <<std::endl;
-        std::cout << "Turning visualisation OFF..." <<std::endl;
+        cout << "\033[33m" << "No of events " << no_of_events_int << " is more than 100..." << "\033[0m" <<endl;
+        cout << "\033[33m" << "Switching OFF visualisation..." << "\033[0m" <<endl;
         vis_mode_OFF_button->SetState(kButtonDown); // Marks it as selected
         vis_mode_ON_button->SetState(kButtonUp); // Marks it as unselected
    }
    
     if(vis_mode_ON_button->GetState() == kButtonDown) //kButtonDown means button is pressed
        {
-           std::cout << "vis_mode_on" << std::endl;
+           cout << "\033[33m" << "Visualisation ON..." << "\033[0m" << endl;
            vis_mode_string = " vis_mode_on ";
        }
     else if(vis_mode_OFF_button->GetState() == kButtonDown)
             {
-                std::cout << "vis_mode_off" << std::endl;
+                cout << "\033[33m" << "Visualisation OFF..." << "\033[0m" << endl;
                 vis_mode_string = " vis_mode_off ";
             }
 
    rad_source_int = select_rad_source_cbox->GetSelected();
    switch(rad_source_int)
    {
-   case 1: std::cout<<"case 1:"<<std::endl; rad_source_string = " Cs137 ";  break;
-   case 2: std::cout<<"case 2:"<<std::endl; rad_source_string = " Co60 ";   break;
-   case 3: std::cout<<"case 3:"<<std::endl; rad_source_string = " Na22 ";   break;
-   case 4: std::cout<<"case 4:"<<std::endl; rad_source_string = " Ba133 ";  break;
+   case 1: cout << "\033[33m" << "Selected radiation source: Cs137" << "\033[0m" << endl;
+           rad_source_string = " Cs137 ";  break;
+   case 2: cout << "\033[33m" << "Selected radiation source: Co60" << "\033[0m" << endl;
+           rad_source_string = " Co60 ";  break;
+   case 3: cout << "\033[33m" << "Selected radiation source: Na22" << "\033[0m" << endl;
+           rad_source_string = " Na22 ";  break;
+   case 4: cout << "\033[33m" << "Selected radiation source: Ba133" << "\033[0m" << endl;
+           rad_source_string = " Ba133 ";  break;
    }
 
    det_shape_int = select_det_shape_cbox->GetSelected();
    
    switch(det_shape_int)
    {
-   case 1: std::cout<<"case 1:"<<std::endl; det_shape_string = " cylinder ";      break;
-   case 2: std::cout<<"case 2:"<<std::endl; det_shape_string = " box "; break;
+   case 1: cout << "\033[33m" << "Selected detector shape: Cylinder" << "\033[0m" << endl;
+           det_shape_string = " cylinder ";      break;
+   case 2: cout << "\033[33m" << "Selected detector shape: Box" << "\033[0m" << endl;
+           det_shape_string = " box ";      break;
    }
 
-   std::cout << "Det shape int: " << det_shape_int << std::endl;
+  // cout << "Det shape int: " << det_shape_int << endl;
   
    
    det_inner_radius_double = det_inner_radius_entry->GetNumber();
@@ -561,19 +599,30 @@ void MyMainFrame::run_sim_button_clicked()
    det_length_double = det_length_entry->GetNumber();
    det_length_string = to_string(det_length_double);
    
-   al_thickness_double = al_thickness_entry->GetNumber();
-   al_thickness_string = to_string(al_thickness_double);
+    if(al_cover_status_string == "al_cover_ON")
+    {
+        al_thickness_double = al_thickness_entry->GetNumber();
+        al_thickness_string = to_string(al_thickness_double);
    
-   al_gap_double = al_gap_entry->GetNumber();
-   al_gap_string = to_string(al_gap_double);
-
+        al_gap_double = al_gap_entry->GetNumber();
+        al_gap_string = to_string(al_gap_double);
+    }
+    else if (al_cover_status_string == "al_cover_OFF")
+    {
+        al_thickness_double = 0.0;
+        al_thickness_string = to_string(al_thickness_double);
+   
+        al_gap_double = 0.0;
+        al_gap_string = to_string(al_gap_double);
+    }
+   
    det_source_dis_double = det_source_dis_entry->GetNumber();
    det_source_dis_string = to_string(det_source_dis_double);
    
    if(    select_det_shape_cbox->GetSelected() == 1 
        && det_inner_radius_double >= det_outer_radius_double) 
    {
-    std::cout << "Det inner radius should be less than outer radius" << std::endl;
+    cout << "\033[31m" << "Detector inner radius should be less than outer radius..." << "\033[0m" << endl;
     label->SetText("");
     return;  
    }  
@@ -582,23 +631,29 @@ void MyMainFrame::run_sim_button_clicked()
    
    switch(det_mat_int)
    {
-   case 1: std::cout<<"case 1:"<<std::endl; det_mat_string = " NaI "; break;
-   case 2: std::cout<<"case 2:"<<std::endl; det_mat_string = " LaBr3 "; break;
-   case 3: std::cout<<"case 3:"<<std::endl; det_mat_string = " CeBr3 "; break;
-   case 4: std::cout<<"case 4:"<<std::endl; det_mat_string = " HPGe "; break;
+   case 1: cout << "\033[33m" << "Selected material: NaI" << "\033[0m" << endl;
+           det_mat_string = " NaI "; break;
+   case 2: cout << "\033[33m" << "Selected material: LaBr3" << "\033[0m" << endl;
+           det_mat_string = " LaBr3 "; break;
+   case 3: cout << "\033[33m" << "Selected material: CeBr3" << "\033[0m" << endl;
+           det_mat_string = " CeBr3 "; break;
+   case 4: cout << "\033[33m" << "Selected material: HPGe" << "\033[0m" << endl;
+           det_mat_string = " HPGe "; break;
    }
 
-   std::cout << "Det mat int: " << det_mat_int << std::endl;
+   //cout << "Det mat int: " << det_mat_int << endl;
 
 
    no_of_threads_int = no_of_threads_entry->GetNumber();
    no_of_threads_string = to_string(no_of_threads_int);
-   cout << "\033[1;31m No of threads used of simulations: \033[0m" << no_of_threads_int << endl;
+   cout << "\033[33m" << "No of threads used for simulations:" << "\033[0m" << no_of_threads_int << endl;
    
-   text_output->AddLine("Running simulation..."); update_text_output();     
+   cout << "\033[33m" << "Now running simulation..." << "\033[0m" << endl;
+   
+   //text_output->AddLine("Running simulation..."); update_text_output();     
    
    // Construct a shell command using the extracted executable name
-   TString exe_command = "bash -c 'cd "+pwd_path+"/geant4/build && ./sim " + vis_mode_string
+   TString exe_command = "cd geant4/build && ./sim " + vis_mode_string
                          + no_of_threads_string + " "
                          + no_of_events_string
                          + rad_source_string
@@ -607,20 +662,21 @@ void MyMainFrame::run_sim_button_clicked()
                          + det_outer_radius_string + " "
                          + det_source_dis_string + " "
                          + det_length_string + " "
+                         + al_cover_status_string + " "
                          + al_thickness_string + " "
                          + al_gap_string + " "
-                         + det_mat_string
+                         + det_mat_string;
                          //+ " 2>&1 >> ../../log.txt
-                         + " ' ";
+                         //+ " ' ";
                          // + " ' & ";
    
-   cout << "exe_command: " << exe_command << endl;
+   cout << "\033[33m" << "Command to be executed: " << exe_command << "\033[0m" << endl;
    
    // Execute the command
    int sim_status = gSystem->Exec(exe_command);
    
    // Check execution result
-   cout << "Execution returned: " << sim_status << endl;
+  // cout << "Execution returned: " << sim_status << endl;
    
   // cout << "Merging ROOT files " << endl;
   // gSystem->Exec("bash -c 'cd "+pwd_path+"/geant4/build && hadd -f output.root output_t*.root' ");
@@ -629,32 +685,35 @@ void MyMainFrame::run_sim_button_clicked()
 
    if (sim_status != 0)
     {
-       text_output->AddLine("Error: Simulation failed. Check log.txt"); update_text_output();
-       TString exe_command_2 = "bash -c 'cd "+pwd_path+"/geant4/build && ./sim 2>&1'";
+       //text_output->AddLine("Error: Simulation failed..."); update_text_output();
+       cout << "\033[31m" << "ERROR: Simulation failed..." << "\033[0m" << endl;
+       
+       TString exe_command_2 = "cd /geant4/build && ./sim 2>&1'";
        
        TString sim_output = gSystem->GetFromPipe(exe_command_2);
-       // Convert TString to std::string
-          std::string sim_output_cpp = std::string(sim_output.Data());
+       // Convert TString to string
+          string sim_output_cpp = string(sim_output.Data());
 
        cout << "Execution error returned: " << sim_output << endl;
         // String to search for
-        std::string search_string = "error while loading shared libraries:";
+        string search_string = "error while loading shared libraries:";
 
-    // Check if the string exists in the output
-    if (sim_output_cpp.find(search_string) != std::string::npos) {
-        std::cout << "Source geant4.sh" << std::endl;
-        text_output->AddLine("Couldnt find GEANT4. Source geant4.sh"); update_text_output();
-        
-        label->SetText("");
-        return;
-        
-    } else {
-        std::cout << "Check log.txt" << std::endl;
-    }
+       // Check if the string exists in the output
+       if (sim_output_cpp.find(search_string) != string::npos)
+         {
+             cout << "Source geant4.sh" << endl;
+             text_output->AddLine("Couldnt find GEANT4. Source geant4.sh"); update_text_output();
+             label->SetText("");
+             return;
+         }
        label->SetText("");
        return;
     }
-    text_output->AddLine("Run successful"); update_text_output();
+    else 
+    {
+       cout << "\033[33m" << "Simulation ran successfully..." << "\033[0m" << endl;
+    }
+    //text_output->AddLine("Run successful"); update_text_output();
     label->SetText("");
 
   //  make_button->SetEnabled(kTRUE);
@@ -668,11 +727,11 @@ void MyMainFrame::plot_spec_button_clicked()
    TString output_t0_root_file_exists = gSystem->GetFromPipe("cd "+pwd_path+"/geant4/build && ls | grep -x 'output_t0.root'");
     if (!output_t0_root_file_exists.IsNull())
     {
-        std::cout << "Files found for merging! Now merging files..." << std::endl;
+        cout << "Files found for merging! Now merging files..." << endl;
         
        // TString remove_root_files_command = "cd "+pwd_path+"/geant4/build && rm -rf output.root";   
        // int remove_root_files_status = gSystem->Exec(remove_root_files_command);
-       // std::cout << "Removed previous root file." << std::endl;
+       // cout << "Removed previous root file." << endl;
         
         gSystem->Exec("bash -c 'cd "+pwd_path+"/geant4/build && hadd -fk404 output.root output_t*.root' ");
         // -f flag to overwrite the merged output file, for ZSTD compression(4), level 4
@@ -684,7 +743,7 @@ void MyMainFrame::plot_spec_button_clicked()
     } 
     else
     {
-     std::cout << "No files found for merging." << std::endl;
+     cout << "No files found for merging." << endl;
     }
    
    cout << "Now plotting spectrum..." << endl;
@@ -713,7 +772,7 @@ void MyMainFrame::cal_eff_button_clicked()
    cout<<"no_of_events_int: "<<no_of_events_int<<endl;
    
    //rad_source_string = to_string(t2->GetLeaf("fradSource")->GetValue());
-   rad_source_string = std::string((const char*)t2->GetLeaf("fradSource")->GetValuePointer());
+   rad_source_string = string((const char*)t2->GetLeaf("fradSource")->GetValuePointer());
    cout<<"rad_source_string "<<rad_source_string<<endl;
    
 
@@ -728,7 +787,7 @@ void MyMainFrame::cal_eff_button_clicked()
 void MyMainFrame::stop_sim_button_clicked()
 {
    gSystem->Exec("pkill -f ./sim");
-   std::cout << "Simulation stopped...\n";
+   cout << "Simulation stopped...\n";
    return;
 }
 
@@ -740,7 +799,7 @@ void MyMainFrame::exit_button_clicked()
 
 // Properly handle window close
 void MyMainFrame::CloseWindow() {
-    std::cout << "Closing application...\n";
+    cout << "Closing application...\n";
     gApplication->Terminate(0);  // Stops the ROOT event loop
 }
 

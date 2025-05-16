@@ -157,14 +157,21 @@ G4VPhysicalVolume *MyDetectorConstruction::Construct()
         fScoringVolume = cylinder_det_logic;
     }
 
-    G4double al_inner_radius = 0.0*mm;
-    G4double al_outer_radius = det_outer_radius_double + al_gap_double;//mm
-    G4double al_half_thickness_double = al_thickness_double*0.5;//mm
-    G4cout << al_inner_radius <<"\t" <<al_outer_radius <<"\t" <<al_half_thickness_double << G4endl;
-    solidAl = new G4Tubs("solidAl", al_inner_radius, al_outer_radius, al_half_thickness_double, 0.0, 2.0*M_PI );
-    logicAl = new G4LogicalVolume(solidAl, AlMat, "logicAl");
-    physAl = new G4PVPlacement(0, G4ThreeVector(0.*m, 0.*m, -1.0*(det_length_double*0.5 + al_gap_double + al_half_thickness_double) ), logicAl, "physAl", logicWorld, false, 0, true);
-     
+    
+    if(al_cover_status_string=="al_cover_ON")
+    {
+        G4double al_inner_radius = 0.0*mm;
+        G4double al_outer_radius = det_outer_radius_double + al_gap_double;//mm
+        G4double al_half_thickness_double = al_thickness_double*0.5;//mm
+        G4cout << al_inner_radius <<"\t" <<al_outer_radius <<"\t" <<al_half_thickness_double << G4endl;
+        solidAl = new G4Tubs("solidAl", al_inner_radius, al_outer_radius, al_half_thickness_double, 0.0, 2.0*M_PI );
+        logicAl = new G4LogicalVolume(solidAl, AlMat, "logicAl");    
+        physAl = new G4PVPlacement(0, G4ThreeVector(0.*m, 0.*m, -1.0*(det_length_double*0.5 + al_gap_double + al_half_thickness_double) ), logicAl, "physAl", logicWorld, false, 0, true);
+    }
+    else if(al_cover_status_string=="al_cover_OFF")
+    {
+        G4cout << "No aluminium casing..." << G4endl;
+    } 
    // G4double solidAngle = 2.0*M_PI*( 1.0 - detDistance/sqrt(pow(detDistance,2.0) + pow(detDiameterCm/2.0,2.0))) ;
 
     return physWorld;

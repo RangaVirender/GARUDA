@@ -49,6 +49,7 @@ G4String solid_volume;
 G4String no_of_threads_string;
 G4String rad_source_string;
 G4String det_length_string;
+G4String al_cover_status_string;
 G4String al_thickness_string;
 G4String al_gap_string;
 
@@ -80,9 +81,10 @@ int main(int argc, char** argv) //number of arguments including ./sim, argument 
  det_outer_radius_string = argv[7];
    det_source_dis_string = argv[8];
        det_length_string = argv[9];
-     al_thickness_string = argv[10];  
-           al_gap_string = argv[11];  
-       detector_material = argv[12];
+  al_cover_status_string = argv[10];
+     al_thickness_string = argv[11];  
+           al_gap_string = argv[12];  
+       detector_material = argv[13];
      
      //converts every number to mm
       det_inner_radius_double = std::stod(det_inner_radius_string)*cm ; // cm means the number is entered in cm, it is *10 to convert to mm

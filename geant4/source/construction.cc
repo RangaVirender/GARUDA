@@ -78,6 +78,13 @@ void MyDetectorConstruction::DefineMaterials()
     AlMat = new G4Material("AlMat", 2.7 * g/cm3, 1);
     AlMat->AddElement(Al, 1);
 
+    Bi = nist->FindOrBuildElement("Bi");
+    O = nist->FindOrBuildElement("O");
+    BGO_mat = new G4Material("BGO_mat", 7.13 * g/cm3, 3);
+    BGO_mat->AddElement(Bi, 4);
+    BGO_mat->AddElement(Ge, 3);
+    BGO_mat->AddElement(O, 12);
+
 
     //------------------------Steel-------------------------------------------
     Fe = nist->FindOrBuildElement("Fe");
@@ -104,6 +111,7 @@ G4LogicalVolume *MyDetectorConstruction::CreateLogicalVolume(G4VSolid* solid,
     else if (materialName == "NaI")   {material = NaI_mat;}
     else if (materialName == "CeBr3") {material = CeBr3_mat;}
     else if (materialName == "HPGe")  {material = HPGe_mat;}
+    else if (materialName == "BGO")  {material = BGO_mat;}
     // Create and return the logical volume
     return new G4LogicalVolume(solid, material, volumeName);
     
@@ -142,7 +150,7 @@ G4VPhysicalVolume *MyDetectorConstruction::Construct()
     
     if(det_shape == "box")
     {   
-        box_det_solid = new G4Box("box_det_solid", det_inner_radius_double*0.5, det_outer_radius_double*0.5, det_length_double*0.5);
+        box_det_solid = new G4Box("box_det_solid", det_length_double*0.5, det_inner_radius_double*0.5, det_outer_radius_double*0.5 );
         box_det_logic = MyDetectorConstruction::CreateLogicalVolume(box_det_solid, detector_material, "box_det_logic");
         box_det_phys  = new G4PVPlacement(0, G4ThreeVector(0.*m, 0.*m, 0.*m), box_det_logic, "box_det_phys", logicWorld, false, 0, true);
 
@@ -157,8 +165,7 @@ G4VPhysicalVolume *MyDetectorConstruction::Construct()
         fScoringVolume = cylinder_det_logic;
     }
 
-    
-    if(al_cover_status_string=="al_cover_ON")
+   if(al_cover_status_string=="al_cover_ON")
     {
         G4double al_inner_radius = 0.0*mm;
         G4double al_outer_radius = det_outer_radius_double + al_gap_double;//mm

@@ -48,6 +48,8 @@ G4String det_shape;
 G4String solid_volume;
 G4String no_of_threads_string;
 G4String rad_source_string;
+G4String rad_source_data_string;
+G4double gamma_energy_double;
 G4String det_length_string;
 G4String al_cover_status_string;
 G4String al_thickness_string;
@@ -76,24 +78,28 @@ int main(int argc, char** argv) //number of arguments including ./sim, argument 
        noOfEvents_string = argv[3];  //convert string to integer
           noOfEvents_int = stoi(noOfEvents_string);  //convert string to integer
        rad_source_string = argv[4];
-               det_shape = argv[5];
- det_inner_radius_string = argv[6];
- det_outer_radius_string = argv[7];
-   det_source_dis_string = argv[8];
-       det_length_string = argv[9];
-  al_cover_status_string = argv[10];
-     al_thickness_string = argv[11];  
-           al_gap_string = argv[12];  
-       detector_material = argv[13];
+  rad_source_data_string = argv[5];
+               det_shape = argv[6];
+ det_inner_radius_string = argv[7];
+ det_outer_radius_string = argv[8];
+   det_source_dis_string = argv[9];
+       det_length_string = argv[10];
+  al_cover_status_string = argv[11];
+     al_thickness_string = argv[12];  
+           al_gap_string = argv[13];  
+       detector_material = argv[14];
      
-     //converts every number to mm
+     //convert string to number
+       G4cout << " string to number " << G4endl;
+
       det_inner_radius_double = std::stod(det_inner_radius_string)*cm ; // cm means the number is entered in cm, it is *10 to convert to mm
       det_outer_radius_double = std::stod(det_outer_radius_string)*cm ;
             det_length_double = std::stod(det_length_string)*cm ;
           al_thickness_double = std::stod(al_thickness_string)*mm ; // mm means number is laready in mm, so no conversion mm=1
                 al_gap_double = std::stod(al_gap_string)*mm ;
         det_source_dis_double = std::stod(det_source_dis_string)*cm ;
-      
+    
+    
 
 
     G4UIExecutive* ui = 0;
@@ -151,18 +157,23 @@ int main(int argc, char** argv) //number of arguments including ./sim, argument 
         UImanager->ApplyCommand("/run/initialize");
     }
 
+    if(rad_source_string=="rad_nuclei")
+    {   G4cout << " rad_nuclei selected " << G4endl;
         UImanager->ApplyCommand("/gps/particle ion");
         UImanager->ApplyCommand("/process/had/rdm/thresholdForVeryLongDecayTime 100 year");
-      
-      if(rad_source_string == "Cs137") { UImanager->ApplyCommand("/gps/ion 55 137");}// #for Cs137 662
-      if(rad_source_string == "Co60") { UImanager->ApplyCommand("/gps/ion 27 60");}// #for Co60 1173 1332 2505
-      if(rad_source_string == "Na22") { UImanager->ApplyCommand("/gps/ion 11 22");}// #for Na22 511 1274 1785
-      if(rad_source_string == "Ba133") { UImanager->ApplyCommand("/gps/ion 56 133");}// 
-        
-        UImanager->ApplyCommand("#/gps/ion 41 94");// #for Nb94 703 871 1574
-        UImanager->ApplyCommand("#/gps/ion 11 24");// #for Na24 1368 2754 4122
-        UImanager->ApplyCommand("#/gps/ion 21 46");// #for Sc46 889 1120 2009
+        if(rad_source_data_string == "Cs137") { UImanager->ApplyCommand("/gps/ion 55 137");}// #for Cs137 662
+        if(rad_source_data_string == "Co60")  { UImanager->ApplyCommand("/gps/ion 27 60");}// #for Co60 1173 1332 2505
+        if(rad_source_data_string == "Na22")  { UImanager->ApplyCommand("/gps/ion 11 22");}// #for Na22 511 1274 1785
+        if(rad_source_data_string == "Ba133") { UImanager->ApplyCommand("/gps/ion 56 133");}// 
         UImanager->ApplyCommand("/gps/energy 0 keV");// #kinetic energy of ion
+    }    
+    else if(rad_source_string=="rad_gamma")    
+    {   G4cout << " rad_gamma selected " << G4endl;
+        UImanager->ApplyCommand("/gps/particle gamma");
+        gamma_energy_double = std::stod(rad_source_data_string);
+        G4String gamma_energy_command = "/gps/energy " + to_string(gamma_energy_double) + " keV";
+        UImanager->ApplyCommand(gamma_energy_command); 
+    }
         UImanager->ApplyCommand("/gps/pos/type Point");
         G4String det_source_dis_command = "/gps/pos/centre 0. 0. " + to_string(-1.0*det_source_dis_double) + " mm";
         //UImanager->ApplyCommand("/gps/pos/centre 0. 0. 0. mm"); 

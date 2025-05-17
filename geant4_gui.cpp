@@ -54,7 +54,10 @@ class MyMainFrame : public TGMainFrame
     TGTextButton  *run_sim_button; // Button for running simulation
     
     TGTextButton  *plot_spec_button; // Button for running simulation
-    TGTextButton  *cal_eff_button; // Button for running simulation
+    
+    TGLabel       *get_counts_label;
+    TGTextButton  *get_counts_button; // Button for running simulation
+    TGNumberEntry *get_counts_entry; // Button for running simulation
     
     TGTextButton  *exit_button;  // Button for exiting the application
     TGTextButton  *load_log_button;  // Button for loading log.txt
@@ -88,7 +91,11 @@ class MyMainFrame : public TGMainFrame
     TString        det_source_dis_string;
    
     TString        rad_source_string;
+    TString        rad_source_data_string;
+    TString        rad_nuclei_string;
+    double         rad_gamma_energy_double;
     int            rad_source_int;
+    int            rad_nuclei_int;
     int            det_mat_int;
     int            det_shape_int;
     TGLabel       *label;
@@ -120,7 +127,7 @@ class MyMainFrame : public TGMainFrame
     void run_sim_button_clicked(); // Action for "Click Me" button
     void stop_sim_button_clicked(); // Action for "Click Me" button
     void plot_spec_button_clicked(); // Action for "Click Me" button
-    void cal_eff_button_clicked(); // Action for "Click Me" button
+    void get_counts_button_clicked(); // Action for "Click Me" button
     void exit_button_clicked();  // Action for "Exit" button
     void det_shape_selected(Int_t);
     void rad_source_selected(Int_t);
@@ -251,8 +258,9 @@ MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h) : TGMainFrame(p,
     select_det_mat_cbox->AddEntry("LaBr3:Ce", 2);
     select_det_mat_cbox->AddEntry("CeBr3", 3);
     select_det_mat_cbox->AddEntry("HPGe", 4);
+    select_det_mat_cbox->AddEntry("BGO", 5);
     // Set default entry (e.g., "Option 2" with ID = 2)
-    select_det_mat_cbox->Select(2);
+    select_det_mat_cbox->Select(1);
     select_det_mat_cbox->Resize(100, 25); // Resize the text entry field
 
     no_of_threads_label = new TGLabel(grid_frame_2, "CPU Cores");
@@ -348,8 +356,12 @@ MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h) : TGMainFrame(p,
     plot_spec_button = new TGTextButton(grid_frame_4, "Plot spectrum");
     plot_spec_button->Connect("Clicked()", "MyMainFrame", this, "plot_spec_button_clicked()"); // Connect to exit handler
     
-    cal_eff_button = new TGTextButton(grid_frame_4, "Calculate efficiency");
-    cal_eff_button->Connect("Clicked()", "MyMainFrame", this, "cal_eff_button_clicked()"); // Connect to exit handler
+    get_counts_label = new TGLabel(grid_frame_4, "Get counts at energy(keV)");
+    get_counts_entry = new TGNumberEntry(grid_frame_4, 1, 5, -1, TGNumberFormat::kNESInteger);//default value, max digits, ID 
+    get_counts_entry->SetLimits(TGNumberFormat::kNELLimitMinMax, 0, 5e3);
+    
+    get_counts_button = new TGTextButton(grid_frame_4, "Get counts");
+    get_counts_button->Connect("Clicked()", "MyMainFrame", this, "get_counts_button_clicked()"); // Connect to exit handler
     
     // Create "Exit" button
     exit_button = new TGTextButton(grid_frame_4, "Exit");
@@ -358,7 +370,9 @@ MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h) : TGMainFrame(p,
 
     grid_frame_4->AddFrame(label, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 5));
     grid_frame_4->AddFrame(plot_spec_button, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 5));
-    grid_frame_4->AddFrame(cal_eff_button, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 5));
+    grid_frame_4->AddFrame(get_counts_label, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 5));
+    grid_frame_4->AddFrame(get_counts_entry, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 5));
+    grid_frame_4->AddFrame(get_counts_button, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 5));
     grid_frame_4->AddFrame(exit_button, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 5));
     global_frame->AddFrame(grid_frame_4, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 5));
     
@@ -567,14 +581,31 @@ void MyMainFrame::run_sim_button_clicked()
    rad_source_int = select_rad_source_cbox->GetSelected();
    switch(rad_source_int)
    {
-   case 1: cout << "\033[33m" << "Selected radiation source: Cs137" << "\033[0m" << endl;
-           rad_source_string = " Cs137 ";  break;
-   case 2: cout << "\033[33m" << "Selected radiation source: Co60" << "\033[0m" << endl;
-           rad_source_string = " Co60 ";  break;
-   case 3: cout << "\033[33m" << "Selected radiation source: Na22" << "\033[0m" << endl;
-           rad_source_string = " Na22 ";  break;
-   case 4: cout << "\033[33m" << "Selected radiation source: Ba133" << "\033[0m" << endl;
-           rad_source_string = " Ba133 ";  break;
+   case 1: cout << "\033[33m" << "Selected radiative source: Radioactive nuclei " << "\033[0m" << endl;
+           rad_source_string = "rad_nuclei";  break;
+   case 2: cout << "\033[33m" << "Selected radiative source: Gamma " << "\033[0m" << endl;
+           rad_source_string = "rad_gamma";  break;
+   }
+
+   if(rad_source_string=="rad_nuclei")
+   {
+        rad_nuclei_int = select_rad_nuclei_cbox->GetSelected();
+        switch(rad_nuclei_int)
+        {
+            case 1: cout << "\033[33m" << "Selected radiative nuclei: Cs137" << "\033[0m" << endl;
+                    rad_source_data_string = " Cs137 ";  break;
+            case 2: cout << "\033[33m" << "Selected radiative nuclei: Co60" << "\033[0m" << endl;
+                    rad_source_data_string = " Co60 ";  break;
+            case 3: cout << "\033[33m" << "Selected radiative nuclei: Na22" << "\033[0m" << endl;
+                    rad_source_data_string = " Na22 ";  break;
+            case 4: cout << "\033[33m" << "Selected radiative nuclei: Ba133" << "\033[0m" << endl;
+                    rad_source_data_string = " Ba133 ";  break;
+        }
+   }
+   else if(rad_source_string=="rad_gamma")
+   {
+        rad_gamma_energy_double = gamma_energy_entry->GetNumber();
+        rad_source_data_string = to_string(rad_gamma_energy_double);  
    }
 
    det_shape_int = select_det_shape_cbox->GetSelected();
@@ -587,6 +618,7 @@ void MyMainFrame::run_sim_button_clicked()
            det_shape_string = " box ";      break;
    }
 
+  
   // cout << "Det shape int: " << det_shape_int << endl;
   
    
@@ -639,6 +671,8 @@ void MyMainFrame::run_sim_button_clicked()
            det_mat_string = " CeBr3 "; break;
    case 4: cout << "\033[33m" << "Selected material: HPGe" << "\033[0m" << endl;
            det_mat_string = " HPGe "; break;
+   case 5: cout << "\033[33m" << "Selected material: BGO" << "\033[0m" << endl;
+           det_mat_string = " BGO "; break;
    }
 
    //cout << "Det mat int: " << det_mat_int << endl;
@@ -655,9 +689,10 @@ void MyMainFrame::run_sim_button_clicked()
    // Construct a shell command using the extracted executable name
    TString exe_command = "cd geant4/build && ./sim " + vis_mode_string
                          + no_of_threads_string + " "
-                         + no_of_events_string
-                         + rad_source_string
-                         + det_shape_string
+                         + no_of_events_string + " "
+                         + rad_source_string + " "
+                         + rad_source_data_string + " "
+                         + det_shape_string + " "
                          + det_inner_radius_string + " "
                          + det_outer_radius_string + " "
                          + det_source_dis_string + " "
@@ -688,7 +723,7 @@ void MyMainFrame::run_sim_button_clicked()
        //text_output->AddLine("Error: Simulation failed..."); update_text_output();
        cout << "\033[31m" << "ERROR: Simulation failed..." << "\033[0m" << endl;
        
-       TString exe_command_2 = "cd /geant4/build && ./sim 2>&1'";
+       TString exe_command_2 = "cd /geant4/build && ./sim 2>&1";
        
        TString sim_output = gSystem->GetFromPipe(exe_command_2);
        // Convert TString to string
@@ -763,7 +798,7 @@ void MyMainFrame::plot_spec_button_clicked()
    return;
 }
 
-void MyMainFrame::cal_eff_button_clicked()
+void MyMainFrame::get_counts_button_clicked()
 {
    //TFile* f1 = new TFile("geant4/build/output.root","READ");
    TTree* t2 = (TTree*)f1->Get("simulationInfo");
@@ -774,13 +809,11 @@ void MyMainFrame::cal_eff_button_clicked()
    //rad_source_string = to_string(t2->GetLeaf("fradSource")->GetValue());
    rad_source_string = string((const char*)t2->GetLeaf("fradSource")->GetValuePointer());
    cout<<"rad_source_string "<<rad_source_string<<endl;
-   
 
-   double counts = h1->GetBinContent(662);
-   cout << "Calculating full energy peak eficiency " << endl;
-   cout << "Counts at 662 keV: " << counts << endl;
-   cout << "Full energy peak efficiency: " << counts/no_of_events_int*100.0 << "%" << endl;   
-  
+   int bin_number = get_counts_entry->GetNumber();
+   int counts = h1->GetBinContent(bin_number);
+   cout << "Counts at bin number " << bin_number << " : " << counts << endl;
+   
    return;
 }
 

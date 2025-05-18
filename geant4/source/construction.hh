@@ -55,9 +55,9 @@ public:
 
 private:
     G4Box  *solidWorld, *boxSolid, *box_det_solid;  
-    G4Tubs *solidDetector, *solidAl, *solidSteelChamber, *cylinder_det_solid;
-    G4LogicalVolume *logicWorld,  *logicDetector, *logicAl, *logicSteelChamber , *boxLogic, *box_det_logic, *cylinder_det_logic;
-    G4VPhysicalVolume *physWorld, *physDetector, *physAl, *physSteelChamber, *box_det_phys, *cylinder_det_phys ;
+    G4Tubs *solidDetector, *front_solidAl, *outer_solidAl, *solidSteelChamber, *cylinder_det_solid;
+    G4LogicalVolume *logicWorld,  *logicDetector, *front_logicAl, *outer_logicAl, *logicSteelChamber , *boxLogic, *box_det_logic, *cylinder_det_logic;
+    G4VPhysicalVolume *physWorld, *physDetector, *front_physAl, *outer_physAl, *physSteelChamber, *box_det_phys, *cylinder_det_phys ;
 
     //G4OpticalSurface *mirrorSurface;
 
@@ -73,7 +73,6 @@ private:
     G4LogicalVolume *fScoringVolume;
 
     G4double xWorld, yWorld, zWorld;
-
    
 };
 

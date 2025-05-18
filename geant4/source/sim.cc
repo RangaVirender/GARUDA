@@ -52,8 +52,8 @@ G4String rad_source_data_string;
 G4double gamma_energy_double;
 G4String det_length_string;
 G4String al_cover_status_string;
-G4String al_thickness_string;
-G4String al_gap_string;
+G4String front_al_thickness_string;
+G4String front_al_gap_string;
 
 G4String det_inner_radius_string;
 G4String det_outer_radius_string;
@@ -63,8 +63,8 @@ G4double det_inner_radius_double;
 G4double det_outer_radius_double;
 G4double det_length_double;
 G4double det_source_dis_double;
-G4double al_thickness_double;
-G4double al_gap_double;
+G4double front_al_thickness_double;
+G4double front_al_gap_double;
 
 
 int main(int argc, char** argv) //number of arguments including ./sim, argument array
@@ -73,21 +73,21 @@ int main(int argc, char** argv) //number of arguments including ./sim, argument 
     //    ./sim vis    1    10000 shape LaBr3  
     //argv  0    1     2     3     4      5
     
-      visualisation_flag = argv[1];  // vis for visualisation no_vis for no visualisation
-    no_of_threads_string = argv[2];
-       noOfEvents_string = argv[3];  //convert string to integer
-          noOfEvents_int = stoi(noOfEvents_string);  //convert string to integer
-       rad_source_string = argv[4];
-  rad_source_data_string = argv[5];
-               det_shape = argv[6];
- det_inner_radius_string = argv[7];
- det_outer_radius_string = argv[8];
-   det_source_dis_string = argv[9];
-       det_length_string = argv[10];
-  al_cover_status_string = argv[11];
-     al_thickness_string = argv[12];  
-           al_gap_string = argv[13];  
-       detector_material = argv[14];
+       visualisation_flag = argv[1];  // vis for visualisation no_vis for no visualisation
+     no_of_threads_string = argv[2];
+        noOfEvents_string = argv[3];  //convert string to integer
+           noOfEvents_int = stoi(noOfEvents_string);  //convert string to integer
+        rad_source_string = argv[4];
+   rad_source_data_string = argv[5];
+                det_shape = argv[6];
+  det_inner_radius_string = argv[7];
+  det_outer_radius_string = argv[8];
+    det_source_dis_string = argv[9];
+        det_length_string = argv[10];
+   al_cover_status_string = argv[11];  
+front_al_thickness_string = argv[12];  
+      front_al_gap_string = argv[13];  
+        detector_material = argv[14];
      
      //convert string to number
        G4cout << " string to number " << G4endl;
@@ -95,8 +95,8 @@ int main(int argc, char** argv) //number of arguments including ./sim, argument 
       det_inner_radius_double = std::stod(det_inner_radius_string)*cm ; // cm means the number is entered in cm, it is *10 to convert to mm
       det_outer_radius_double = std::stod(det_outer_radius_string)*cm ;
             det_length_double = std::stod(det_length_string)*cm ;
-          al_thickness_double = std::stod(al_thickness_string)*mm ; // mm means number is laready in mm, so no conversion mm=1
-                al_gap_double = std::stod(al_gap_string)*mm ;
+    front_al_thickness_double = std::stod(front_al_thickness_string)*mm ; // mm means number is laready in mm, so no conversion mm=1
+          front_al_gap_double = std::stod(front_al_gap_string)*mm ;
         det_source_dis_double = std::stod(det_source_dis_string)*cm ;
     
     
@@ -146,6 +146,8 @@ int main(int argc, char** argv) //number of arguments including ./sim, argument 
         //UImanager->ApplyCommand("/vis/viewer/set/style surface");//sets globally for all volumes
         UImanager->ApplyCommand("/vis/geometry/set/forceWireframe logicWorld 1");//set mother volume to wireframe
         UImanager->ApplyCommand("/vis/geometry/set/forceSolid cylinder_det_logic 1");//set mother volume to wireframe
+        UImanager->ApplyCommand("/vis/geometry/set/forceSolid front_logicAl 1");//set mother volume to wireframe
+        UImanager->ApplyCommand("/vis/geometry/set/forceSolid outer_logicAl 1");//set mother volume to wireframe
         UImanager->ApplyCommand("/vis/geometry/set/forceSolid box_det_logic 1");//set mother volume to wireframe
         UImanager->ApplyCommand("/vis/geometry/set/colour cylinder_det_logic 0 1 0 0");// 0 R G B
         UImanager->ApplyCommand("/vis/geometry/set/colour box_det_logic 0 1 0 0");// 0 R G B

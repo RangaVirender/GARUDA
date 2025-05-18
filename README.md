@@ -1,4 +1,4 @@
-# geant4_gui (under development)
+# Geant4 GUI (under development)
 WELCOME TO THE CERN-ROOT BASED GUI FOR GEANT4
 
 DEVELOPED BY V. RANGA (2025)

@@ -15,8 +15,8 @@ class MyMainFrame : public TGMainFrame
     TGComboBox    *select_rad_source_cbox; // List for selecting detector material
     TGLabel       *select_rad_source_label;
 
-    TGNumberEntry *gamma_energy_entry;
-    TGLabel       *gamma_energy_label;
+    TGNumberEntry *particle_energy_entry;
+    TGLabel       *particle_energy_label;
 
     TGComboBox    *select_det_mat_cbox; // List for selecting detector material
     TGLabel       *select_det_mat_label;
@@ -95,7 +95,7 @@ class MyMainFrame : public TGMainFrame
     TString        rad_source_string;
     TString        rad_source_data_string;
     TString        rad_nuclei_string;
-    double         rad_gamma_energy_double;
+    double         rad_particle_energy_double;
     int            rad_source_int;
     int            rad_nuclei_int;
     int            det_mat_int;
@@ -185,6 +185,7 @@ MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h) : TGMainFrame(p,
     select_rad_source_cbox = new TGComboBox(grid_frame_2, -1);
     select_rad_source_cbox->AddEntry("Radioactive nuclei", 1);
     select_rad_source_cbox->AddEntry("Gamma", 2);
+    select_rad_source_cbox->AddEntry("Proton", 3);
     select_rad_source_cbox->Connect("Selected(Int_t)", "MyMainFrame", this, "rad_source_selected(Int_t)");
     select_rad_source_cbox->Resize(200, 25); // Resize the text entry field
 
@@ -196,9 +197,9 @@ MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h) : TGMainFrame(p,
     select_rad_nuclei_cbox->Select(1);
     select_rad_nuclei_cbox->Resize(100, 25); // Resize the text entry field
 
-    gamma_energy_label = new TGLabel(grid_frame_2, "Gamma-ray energy(keV)");
-    gamma_energy_entry = new TGNumberEntry(grid_frame_2, 662, 5, -1, TGNumberFormat::kNESReal);//default value, max digits, ID 
-    gamma_energy_entry->SetLimits(TGNumberFormat::kNELLimitMinMax, 0.0, 1e5);
+    particle_energy_label = new TGLabel(grid_frame_2, "Particle energy(keV)");
+    particle_energy_entry = new TGNumberEntry(grid_frame_2, 662, 5, -1, TGNumberFormat::kNESReal);//default value, max digits, ID 
+    particle_energy_entry->SetLimits(TGNumberFormat::kNELLimitMinMax, 0.0, 1e5);
     
     select_det_shape_label = new TGLabel(det_frame, "Detector shape");
     select_det_shape_cbox = new TGComboBox(det_frame, -1);
@@ -277,8 +278,8 @@ MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h) : TGMainFrame(p,
     grid_frame_2->AddFrame(select_rad_source_cbox, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 0));
     grid_frame_2->AddFrame(select_rad_nuclei_cbox, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 0));
     
-    grid_frame_2->AddFrame(gamma_energy_label, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 0));
-    grid_frame_2->AddFrame(gamma_energy_entry, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 0));
+    grid_frame_2->AddFrame(particle_energy_label, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 0));
+    grid_frame_2->AddFrame(particle_energy_entry, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 0));
     grid_frame_2->AddFrame(parameters_help_button, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 0));
     
     /////////////////////////////
@@ -406,12 +407,17 @@ void MyMainFrame::rad_source_selected(Int_t selected_item_id)
     {
     case 1: //radioactive nuclei selected
             select_rad_nuclei_cbox->SetEnabled(kTRUE);
-            gamma_energy_entry->SetState(kFALSE);
+            particle_energy_entry->SetState(kFALSE);
             break;
     case 2: //gamma
             select_rad_nuclei_cbox->SetEnabled(kFALSE);
-            gamma_energy_entry->SetState(kTRUE);
+            particle_energy_entry->SetState(kTRUE);
             break;
+    case 3: //proton
+            select_rad_nuclei_cbox->SetEnabled(kFALSE);
+            particle_energy_entry->SetState(kTRUE);
+            break;
+    
     }
     return;
 }
@@ -572,10 +578,13 @@ void MyMainFrame::run_sim_button_clicked()
    rad_source_int = select_rad_source_cbox->GetSelected();
    switch(rad_source_int)
    {
-   case 1: cout << "\033[33m" << "Selected radiative source: Radioactive nuclei " << "\033[0m" << endl;
+        case 1: cout << "\033[33m" << "Selected radioactive nuclei " << "\033[0m" << endl;
            rad_source_string = "rad_nuclei";  break;
-   case 2: cout << "\033[33m" << "Selected radiative source: Gamma " << "\033[0m" << endl;
+        case 2: cout << "\033[33m" << "Selected particle: Gamma " << "\033[0m" << endl;
            rad_source_string = "rad_gamma";  break;
+        case 3: cout << "\033[33m" << "Selected particle: Proton " << "\033[0m" << endl;
+           rad_source_string = "rad_proton";  break;
+          
    }
 
    if(rad_source_string=="rad_nuclei")
@@ -595,8 +604,13 @@ void MyMainFrame::run_sim_button_clicked()
    }
    else if(rad_source_string=="rad_gamma")
    {
-        rad_gamma_energy_double = gamma_energy_entry->GetNumber();
-        rad_source_data_string = to_string(rad_gamma_energy_double);  
+        rad_particle_energy_double = particle_energy_entry->GetNumber();
+        rad_source_data_string = to_string(rad_particle_energy_double);  
+   }
+   else if(rad_source_string=="rad_proton")
+   {
+        rad_particle_energy_double = particle_energy_entry->GetNumber();
+        rad_source_data_string = to_string(rad_particle_energy_double);  
    }
 
    det_shape_int = select_det_shape_cbox->GetSelected();
@@ -671,7 +685,7 @@ void MyMainFrame::run_sim_button_clicked()
 
    no_of_threads_int = no_of_threads_entry->GetNumber();
    no_of_threads_string = to_string(no_of_threads_int);
-   cout << "\033[33m" << "No of threads used for simulations:" << "\033[0m" << no_of_threads_int << endl;
+   cout << "\033[33m" << "No of threads used for simulations:" << no_of_threads_int << "\033[0m"  << endl;
    
    cout << "\033[33m" << "Now running simulation..." << "\033[0m" << endl;
    

@@ -48,6 +48,8 @@ class MyMainFrame : public TGMainFrame
     TGNumberEntry *det_source_dis_entry;
     TGLabel       *det_source_dis_label;
 
+    TGTextButton  *parameters_help_button; // Button for cmake
+    
     TGTextButton  *clear_build_button; // Button for cmake
     TGTextButton  *cmake_button; // Button for cmake
     TGTextButton  *make_button; // Button for make
@@ -60,10 +62,10 @@ class MyMainFrame : public TGMainFrame
     TGNumberEntry *get_counts_entry; // Button for running simulation
     
     TGTextButton  *exit_button;  // Button for exiting the application
-    TGTextButton  *load_log_button;  // Button for loading log.txt
+   
     TGTextButton  *load_instrxn_button;  // Button for loading instruction.txt
     
-    TGTextView    *text_output;    // Text output field
+    
     
     TGGroupFrame  *global_frame;
     
@@ -120,6 +122,7 @@ class MyMainFrame : public TGMainFrame
     virtual ~MyMainFrame();
     void source_sh_file_button_clicked(); // Action for "Click Me" button
     void check_geant4_button_clicked(); // Action for "Click Me" button
+    void parameters_help_button_clicked();
     void al_cover_button_clicked(); // Action for "Click Me" button
     void clear_build_button_clicked(); // Action for "Click Me" button
     void cmake_button_clicked(); // Action for "Click Me" button
@@ -132,9 +135,7 @@ class MyMainFrame : public TGMainFrame
     void det_shape_selected(Int_t);
     void rad_source_selected(Int_t);
     void load_instrxn_button_clicked();
-    void load_log_button_clicked();
     void LoadFile(const char *filename);  // Function to load file into TGTextView
-    void update_text_output();  // Function to update TGTextView in real time
     void UpdateAnimation();
     virtual void CloseWindow();  // Properly handle window close
     TString       pwd_path;
@@ -156,46 +157,36 @@ MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h) : TGMainFrame(p,
     
     global_frame = new TGGroupFrame(this, "global", kHorizontalFrame);
 
-    // Layout 3: Grid-like arrangement of buttons
+   
     grid_frame_1 = new TGGroupFrame(global_frame, "Useful Checks", kVerticalFrame);
-    // Create "source .sh file" button
-   // source_sh_file_button = new TGTextButton(grid_frame_1, "Source geant4.sh file");
-   // source_sh_file_button->Connect("Clicked()", "MyMainFrame", this, "source_sh_file_button_clicked()"); // Connect to click handler
     
-    // Create "Check Geant4" button
     check_geant4_button = new TGTextButton(grid_frame_1, "Check Geant4");
     check_geant4_button->Connect("Clicked()", "MyMainFrame", this, "check_geant4_button_clicked()"); // Connect to click handler
     
-     // Create "Load Instructions" button
     load_instrxn_button = new TGTextButton(grid_frame_1, "Load Instructions");
     load_instrxn_button->Connect("Clicked()", "MyMainFrame", this, "load_instrxn_button_clicked()"); // Connect to exit handler
     
-    // Create "Load LOG file" button
-    load_log_button = new TGTextButton(grid_frame_1, "Load LOG file");
-    load_log_button->Connect("Clicked()", "MyMainFrame", this, "load_log_button_clicked()"); // Connect to exit handler
- 
-   // grid_frame_1->AddFrame(source_sh_file_button, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 0));
     grid_frame_1->AddFrame(check_geant4_button, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 0));
     grid_frame_1->AddFrame(load_instrxn_button, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 0));
-    grid_frame_1->AddFrame(load_log_button, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 0));
     global_frame->AddFrame(grid_frame_1, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 5));
 
     grid_frame_2 = new TGGroupFrame(global_frame, "Simulation Parameters", kVerticalFrame);
     det_frame = new TGGroupFrame(global_frame, "Detector", kVerticalFrame);
     
-    // Create a button group
     vis_mode_button_group = new TGButtonGroup(grid_frame_2, "Visualisation Mode");
-    // Add radio buttons to the group
     vis_mode_ON_button  = new TGRadioButton(vis_mode_button_group, "ON");
     vis_mode_OFF_button = new TGRadioButton(vis_mode_button_group, "OFF");
     vis_mode_ON_button->SetState(kButtonDown); // Marks it as selected
 
+    parameters_help_button = new TGTextButton(grid_frame_2, "Help");
+    parameters_help_button->Connect("Clicked()", "MyMainFrame", this, "parameters_help_button_clicked()"); // Connect to click handler
+    
     select_rad_source_label = new TGLabel(grid_frame_2, "Radiation source");
     select_rad_source_cbox = new TGComboBox(grid_frame_2, -1);
     select_rad_source_cbox->AddEntry("Radioactive nuclei", 1);
     select_rad_source_cbox->AddEntry("Gamma", 2);
     select_rad_source_cbox->Connect("Selected(Int_t)", "MyMainFrame", this, "rad_source_selected(Int_t)");
-    select_rad_source_cbox->Resize(100, 25); // Resize the text entry field
+    select_rad_source_cbox->Resize(200, 25); // Resize the text entry field
 
     select_rad_nuclei_cbox = new TGComboBox(grid_frame_2, -1);
     select_rad_nuclei_cbox->AddEntry("Cs137", 1);
@@ -215,7 +206,7 @@ MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h) : TGMainFrame(p,
     select_det_shape_cbox->AddEntry("Box", 2);
     select_det_shape_cbox->Connect("Selected(Int_t)", "MyMainFrame", this, "det_shape_selected(Int_t)");
 
-    select_det_shape_cbox->Resize(100, 25); // Resize the text entry field
+    select_det_shape_cbox->Resize(250, 25); // Resize the text entry field
    
     det_inner_radius_label = new TGLabel(det_frame, "Detector inner radius(cm)");
     det_inner_radius_entry = new TGNumberEntry(det_frame, 0, 5, -1, TGNumberFormat::kNESReal);//default value, max digits, ID 
@@ -288,6 +279,8 @@ MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h) : TGMainFrame(p,
     
     grid_frame_2->AddFrame(gamma_energy_label, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 0));
     grid_frame_2->AddFrame(gamma_energy_entry, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 0));
+    grid_frame_2->AddFrame(parameters_help_button, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 0));
+    
     /////////////////////////////
     select_rad_source_cbox->Select(1);
     //////////////////////////////////
@@ -344,7 +337,6 @@ MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h) : TGMainFrame(p,
     grid_frame_3->AddFrame(cmake_button, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 5));
     grid_frame_3->AddFrame(make_button, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 5));
     grid_frame_3->AddFrame(run_sim_button, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 5));
-    //grid_frame_3->AddFrame(stop_sim_button, new TGLayoutHints(kLHintsCenterX, 5, 5, 5, 5));
     global_frame->AddFrame(grid_frame_3, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 5));
  
     grid_frame_4 = new TGGroupFrame(global_frame, "Analysis", kVerticalFrame);
@@ -359,6 +351,7 @@ MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h) : TGMainFrame(p,
     get_counts_label = new TGLabel(grid_frame_4, "Get counts at energy(keV)");
     get_counts_entry = new TGNumberEntry(grid_frame_4, 1, 5, -1, TGNumberFormat::kNESInteger);//default value, max digits, ID 
     get_counts_entry->SetLimits(TGNumberFormat::kNELLimitMinMax, 0, 5e3);
+    get_counts_entry->Resize(200, 25); // Resize the text entry field
     
     get_counts_button = new TGTextButton(grid_frame_4, "Get counts");
     get_counts_button->Connect("Clicked()", "MyMainFrame", this, "get_counts_button_clicked()"); // Connect to exit handler
@@ -376,12 +369,9 @@ MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h) : TGMainFrame(p,
     grid_frame_4->AddFrame(exit_button, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 5));
     global_frame->AddFrame(grid_frame_4, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 5));
     
-       
-    // Create text output field
-    text_output = new TGTextView(global_frame, 600, 300); // 200x100 pixels size
-    global_frame->AddFrame(text_output, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 10, 10, 0, 10));
+
     AddFrame(global_frame, new TGLayoutHints(kLHintsExpandX, 5, 5, 5, 5));
-    
+       
     // Set up the main frame
     SetWindowName("CERN-ROOT based GUI for Geant4 by V. Ranga (2025)");
     MapSubwindows();
@@ -397,17 +387,17 @@ MyMainFrame::~MyMainFrame() {
     RemoveFrame(run_sim_button);        delete run_sim_button;
     RemoveFrame(exit_button);           delete exit_button;
     RemoveFrame(load_instrxn_button);   delete load_instrxn_button;
-    RemoveFrame(load_log_button);       delete load_log_button;
-    RemoveFrame(text_output);           delete text_output;
     
     Cleanup();
 }
 
-// Function to update TGTextView in real time
-void MyMainFrame::update_text_output()
+void MyMainFrame::parameters_help_button_clicked()
 {
-    text_output->Update();  // Force immediate UI refresh
-    gSystem->ProcessEvents(); // Process pending UI events
+  cout << "\033[32m" 
+       << "HELP" << endl
+       << "HELP content goes here "
+       << "\033[0m" << endl;   
+  return;
 }
 
 void MyMainFrame::rad_source_selected(Int_t selected_item_id)
@@ -512,7 +502,7 @@ void MyMainFrame::cmake_button_clicked()
        cout << "\033[32m" << "CMAKE completed successfully. Click on Run MAKE to proceed." << "\033[0m" << endl;
      }
     label->SetText("");
-    
+    return;
      
 }
 
@@ -531,18 +521,19 @@ void MyMainFrame::make_button_clicked()
     
     TString make_command = "cd geant4/build && make -j"+no_of_events_string;   
     
-    int make_status = gSystem->Exec(make_command);// >> append to log file
-    if(make_status != 0)
+    int make_status_int = gSystem->Exec(make_command);// >> append to log file
+    if( make_status_int != 0)
      {
-        text_output->AddLine("Error: MAKE failed. Check log.txt"); update_text_output();
-        label->SetText("");
+       cout << "\033[31m" << "Error: MAKE failed." << "\033[0m" << endl;
+       label->SetText("");
         return;
      }
      else 
      {
-       text_output->AddLine("MAKE completed successfully. Click on Run Simulation to proceed."); update_text_output();
+       cout << "\033[32m" << "MAKE completed successfully. Click on Run Simulation to proceed." << "\033[0m" << endl;
      }
-     label->SetText("");
+    label->SetText("");
+    return;
 }
 
 
@@ -736,9 +727,8 @@ void MyMainFrame::run_sim_button_clicked()
        // Check if the string exists in the output
        if (sim_output_cpp.find(search_string) != string::npos)
          {
-             cout << "Source geant4.sh" << endl;
-             text_output->AddLine("Couldnt find GEANT4. Source geant4.sh"); update_text_output();
-             label->SetText("");
+             cout << "\033[31m" << "ERROR: couldnt find GEANT4... Source geant4.sh file..." << "\033[0m" << endl;
+             label->SetText("ERROR!");
              return;
          }
        label->SetText("");
@@ -825,8 +815,8 @@ void MyMainFrame::stop_sim_button_clicked()
 }
 
 void MyMainFrame::exit_button_clicked()
-{
-    text_output->AddLine("Exiting application..."); // Add exit message
+{ 
+    cout << "Closing application...\n";
     gApplication->Terminate(0); // Gracefully exit the application
 }
 

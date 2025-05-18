@@ -49,7 +49,7 @@ G4String solid_volume;
 G4String no_of_threads_string;
 G4String rad_source_string;
 G4String rad_source_data_string;
-G4double gamma_energy_double;
+G4double particle_energy_double;
 G4String det_length_string;
 G4String al_cover_status_string;
 G4String front_al_thickness_string;
@@ -172,9 +172,16 @@ front_al_thickness_string = argv[12];
     else if(rad_source_string=="rad_gamma")    
     {   G4cout << " rad_gamma selected " << G4endl;
         UImanager->ApplyCommand("/gps/particle gamma");
-        gamma_energy_double = std::stod(rad_source_data_string);
-        G4String gamma_energy_command = "/gps/energy " + to_string(gamma_energy_double) + " keV";
-        UImanager->ApplyCommand(gamma_energy_command); 
+        particle_energy_double = std::stod(rad_source_data_string);
+        G4String particle_energy_command = "/gps/energy " + to_string(particle_energy_double) + " keV";
+        UImanager->ApplyCommand(particle_energy_command); 
+    }
+    else if(rad_source_string=="rad_proton")    
+    {   G4cout << " rad_proton selected " << G4endl;
+        UImanager->ApplyCommand("/gps/particle proton");
+        particle_energy_double = std::stod(rad_source_data_string);
+        G4String particle_energy_command = "/gps/energy " + to_string(particle_energy_double) + " keV";
+        UImanager->ApplyCommand(particle_energy_command); 
     }
         UImanager->ApplyCommand("/gps/pos/type Point");
         G4String det_source_dis_command = "/gps/pos/centre 0. 0. " + to_string(-1.0*det_source_dis_double) + " mm";

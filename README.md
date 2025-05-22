@@ -1,6 +1,6 @@
 # GARUDA 
 # Geant And Root-based Utility for Detection and Analysis
-#(under development)
+# (under development)
 WELCOME TO THE CERN-ROOT BASED GUI FOR GEANT4
 
 DEVELOPED BY V. RANGA (2025)
